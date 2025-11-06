@@ -9,11 +9,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../components/ui/Button";
 import ThemedText from "../../components/ui/themed-text";
 import { COLORS, RADIUS, SPACING } from "../../constants/Colors";
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
   // Datos de ejemplo; idealmente vienen de contexto / API
   const user = {
     name: "Angie Caiza",
@@ -30,7 +32,10 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingTop: SPACING.xs + insets.top }}
+    >
       <View style={styles.header}>
         <View style={styles.avatarContainer}>
           {user.avatar ? (
@@ -45,7 +50,7 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.userInfo}>
-          <ThemedText weight="bold" size={20}>{user.name}</ThemedText>
+          <ThemedText weight="bold" size={20} color={COLORS.text}>{user.name}</ThemedText>
           <ThemedText color={COLORS.gray} size={14} style={{ marginTop: 6 }}>{user.email}</ThemedText>
         </View>
 
@@ -58,12 +63,12 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.section}>
-        <ThemedText weight="bold" size={18} style={{ marginBottom: SPACING.sm }}>Cuenta</ThemedText>
+        <ThemedText weight="bold" size={18} color={COLORS.text} style={{ marginBottom: SPACING.sm }}>Cuenta</ThemedText>
 
   <TouchableOpacity style={styles.row} onPress={() => router.push({ pathname: '/(tabs)/moves' })}>
           <View style={styles.rowLeft}>
             <Ionicons name="car-outline" size={22} color={COLORS.primary} />
-            <ThemedText style={styles.rowText}>Mis mudanzas</ThemedText>
+            <ThemedText style={styles.rowText} color={COLORS.text}>Mis mudanzas</ThemedText>
           </View>
           <Ionicons name="chevron-forward" size={20} color={COLORS.gray} />
         </TouchableOpacity>
@@ -71,7 +76,7 @@ export default function ProfileScreen() {
   <TouchableOpacity style={styles.row} onPress={() => router.push({ pathname: '/(tabs)/quotes' })}>
           <View style={styles.rowLeft}>
             <Ionicons name="document-text-outline" size={22} color={COLORS.primary} />
-            <ThemedText style={styles.rowText}>Mis cotizaciones</ThemedText>
+            <ThemedText style={styles.rowText} color={COLORS.text}>Mis cotizaciones</ThemedText>
           </View>
           <Ionicons name="chevron-forward" size={20} color={COLORS.gray} />
         </TouchableOpacity>
@@ -79,14 +84,14 @@ export default function ProfileScreen() {
   <TouchableOpacity style={styles.row} onPress={() => router.push({ pathname: '/(tabs)/history' })}>
           <View style={styles.rowLeft}>
             <Ionicons name="time-outline" size={22} color={COLORS.primary} />
-            <ThemedText style={styles.rowText}>Historial</ThemedText>
+            <ThemedText style={styles.rowText} color={COLORS.text}>Historial</ThemedText>
           </View>
           <Ionicons name="chevron-forward" size={20} color={COLORS.gray} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
-        <ThemedText weight="bold" size={18} style={{ marginBottom: SPACING.sm }}>Seguridad</ThemedText>
+        <ThemedText weight="bold" size={18} color={COLORS.text} style={{ marginBottom: SPACING.sm }}>Seguridad</ThemedText>
 
         <TouchableOpacity
           style={styles.row}
@@ -94,7 +99,7 @@ export default function ProfileScreen() {
         >
           <View style={styles.rowLeft}>
             <Ionicons name="key-outline" size={22} color={COLORS.primary} />
-            <ThemedText style={styles.rowText}>Cambiar contraseña</ThemedText>
+            <ThemedText style={styles.rowText} color={COLORS.text}>Cambiar contraseña</ThemedText>
           </View>
           <Ionicons name="chevron-forward" size={20} color={COLORS.gray} />
         </TouchableOpacity>
