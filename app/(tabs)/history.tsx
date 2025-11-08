@@ -1,9 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import React, { useState } from "react";
 import {
   Alert,
   FlatList,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -59,8 +61,24 @@ const MOCK_ORDERS: Order[] = [
 export default function HistoryScreen() {
   const insets = useSafeAreaInsets();
 
-  // Mostrar únicamente pedidos completados
-  const filtered = MOCK_ORDERS.filter((o) => o.status === "completado");
+  // Estados para el buscador
+  const [searchText, setSearchText] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const [appliedDate, setAppliedDate] = useState("");
+
+  // Mostrar únicamente pedidos completados y aplicar filtros si hay alguno activo
+  const filtered = MOCK_ORDERS.filter((o) => o.status === "completado")
+    .filter((o) => {
+      if (!appliedSearch) return true;
+      const q = appliedSearch.toLowerCase();
+      return [o.company, o.number, o.from, o.to].some((f) => f.toLowerCase().includes(q));
+    })
+    .filter((o) => {
+      if (!appliedDate) return true;
+      return o.datetime.toLowerCase().includes(appliedDate.toLowerCase());
+    });
 
   function statusBadge(status: Order["status"]) {
     if (status === "proximo") return { label: "Confirmado", bg: COLORS.primary, color: COLORS.white };
@@ -118,7 +136,47 @@ export default function HistoryScreen() {
         <ThemedText color={COLORS.white} size={14} style={{ marginTop: 6 }}>Revisa tus pedidos anteriores</ThemedText>
       </View>
 
-      {/* Eliminado selector: ahora mostramos solo Pedidos Completados */}
+      {/* Buscador y filtro por fecha */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchRow}>
+          <TextInput
+            value={searchText}
+            onChangeText={setSearchText}
+            placeholder="Buscar por empresa, número, origen o destino"
+            placeholderTextColor={COLORS.textSecondary}
+            style={styles.searchInput}
+          />
+
+          <Button title="Buscar" onPress={() => setAppliedSearch(searchText)} size="small" />
+        </View>
+
+        <View style={[styles.searchRow, { marginTop: SPACING.sm }]}> 
+          <TouchableOpacity style={[styles.searchInput, styles.dateInput]} onPress={() => setShowDatePicker(true)}>
+            <ThemedText color={COLORS.textSecondary} style={{}}>{selectedDate ? formatDate(selectedDate) : 'Seleccionar fecha'}</ThemedText>
+          </TouchableOpacity>
+
+          <Button title="Buscar por fecha" onPress={() => {
+            if (!selectedDate) return setAppliedDate('');
+            setAppliedDate(formatDate(selectedDate));
+          }} size="small" />
+
+          <View style={{ width: SPACING.sm }} />
+          <Button title="Limpiar" onPress={() => { setAppliedSearch(""); setAppliedDate(""); setSearchText(""); setSelectedDate(null); }} variant="outline" size="small" />
+        </View>
+
+        {showDatePicker && (
+          <DateTimePicker
+            value={selectedDate ?? new Date()}
+            mode="date"
+            display="default"
+            onChange={(event: DateTimePickerEvent, date?: Date) => {
+              setShowDatePicker(false);
+              // On iOS user can cancel setting date by sending undefined
+              if (date) setSelectedDate(date);
+            }}
+          />
+        )}
+      </View>
 
       <FlatList
         data={filtered}
@@ -190,4 +248,40 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  searchContainer: {
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    backgroundColor: 'transparent',
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.md,
+    marginRight: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.inputBackground || COLORS.lightGray,
+  },
+  dateInput: {
+    width: 160,
+  },
 });
+
+function formatDate(d: Date) {
+  const today = new Date();
+  if (d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate()) {
+    return 'Hoy';
+  }
+  try {
+    return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
+  } catch (e) {
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = d.toLocaleString('en-US', { month: 'short' });
+    return `${day} ${month}`;
+  }
+}
