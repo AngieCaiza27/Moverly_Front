@@ -10,36 +10,33 @@ import {
 
 export default function Login() {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [contrasena, setContrasena] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      const res = await api.post("/auth/login", { email, password });
-      login(res.data.token);
-    } catch {
-      setError("Credenciales incorrectas o error en el servidor.");
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+
+  try {
+    const res = await api.post("/auth/login", { correo, contrasena });
+    login(res.data.access_token); // ✅ esto guarda y redirige
+  } catch (err) {
+    setError("Credenciales incorrectas o error del servidor.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a2159] px-4">
       <div className="bg-transparent w-full max-w-md text-center">
         {/* 🔹 Imagen superior */}
         <div className="flex justify-center mb-6">
-          <img
-            src="/../../images/logo.png"
-            alt="Moverly logo"
-            className="w-56"
-          />
+          <img src="/../../images/logo.png" alt="Moverly logo" className="w-56" />
         </div>
 
         {/* 🔹 Título */}
@@ -51,7 +48,7 @@ export default function Login() {
           onSubmit={handleSubmit}
           className="bg-white rounded-2xl p-6 shadow-lg space-y-4 text-left"
         >
-          {/* Email */}
+          {/* Correo */}
           <div>
             <label className="text-gray-700 text-sm font-medium">Correo</label>
             <div className="flex items-center border border-gray-300 rounded-lg px-3 mt-1 focus-within:ring-2 focus-within:ring-[#FF6B00]">
@@ -59,15 +56,15 @@ export default function Login() {
               <input
                 type="email"
                 placeholder="ejemplo@moverly.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={correo}
+                onChange={(e) => setCorreo(e.target.value)}
                 className="w-full p-2 outline-none text-gray-700"
                 required
               />
             </div>
           </div>
 
-          {/* Password */}
+          {/* Contraseña */}
           <div>
             <label className="text-gray-700 text-sm font-medium">Contraseña</label>
             <div className="flex items-center border border-gray-300 rounded-lg px-3 mt-1 focus-within:ring-2 focus-within:ring-[#FF6B00]">
@@ -75,8 +72,8 @@ export default function Login() {
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="********"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={contrasena}
+                onChange={(e) => setContrasena(e.target.value)}
                 className="w-full p-2 outline-none text-gray-700"
                 required
               />

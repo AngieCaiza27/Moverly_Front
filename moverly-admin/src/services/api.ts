@@ -1,18 +1,15 @@
-// src/api/adminApi.ts
+// src/config/api.ts
 import axios from "axios";
 
-// 🔗 Tu URL base de API
-const API_BASE_URL = "http://127.0.0.1:8000";
+export const API_BASE_URL = "http://127.0.0.1:8000";
 
-// ✅ Instancia principal de Axios
-const api = axios.create({
+export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// ✅ Interceptor opcional para agregar token (si el usuario está logueado)
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -23,5 +20,3 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-
-export default api;
