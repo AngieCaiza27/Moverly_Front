@@ -119,7 +119,7 @@ export default function QuotesScreen() {
             Av. Siempre Viva 742 → Calle Reforma 123 {"\n"}Hoy, 15:00 · {vehicle}
           </ThemedText>
 
-          {/* 🔹 Controles de filtro */}
+          {/*  Controles de filtro */}
           <View style={styles.filterRow}>
             <View style={styles.dropdown}>
               <Ionicons name="funnel-outline" size={18} color={COLORS.primary} />
