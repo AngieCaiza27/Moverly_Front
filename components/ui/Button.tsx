@@ -1,16 +1,16 @@
 // components/ui/Button.tsx
+import { COLORS, RADIUS, SIZES, SPACING } from '@/constants/Colors';
 import React from 'react';
 import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
   ActivityIndicator,
-  ViewStyle,
-  TextStyle,
-  TouchableOpacityProps,
   StyleProp,
+  StyleSheet,
+  Text,
+  TextStyle,
+  TouchableOpacity,
+  TouchableOpacityProps,
+  ViewStyle,
 } from 'react-native';
-import { COLORS, SPACING, SIZES, RADIUS } from '@/constants/Colors';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
 type ButtonSize = 'small' | 'medium' | 'large';
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
 
   // Variants
   primaryButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.fondo,
   },
   secondaryButton: {
     backgroundColor: COLORS.secondary,
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   outlineButton: {
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: COLORS.fondo,
   },
   ghostButton: {
     backgroundColor: 'transparent',
@@ -148,10 +148,10 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   outlineText: {
-    color: COLORS.primary,
+    color: COLORS.fondo,
   },
   ghostText: {
-    color: COLORS.primary,
+    color: COLORS.fondo,
   },
   disabledText: {
     color: COLORS.gray,
