@@ -66,27 +66,42 @@ export default function LoginScreen() {
         leftIcon="lock-closed-outline"
       />
 
-      <Button title="Iniciar sesión" onPress={handleSubmit(onSubmit)} />
+      {/* Botón de iniciar sesión */}
+      <TouchableOpacity
+        style={styles.primaryButton}
+        onPress={handleSubmit(onSubmit)}
+      >
+        <ThemedText style={styles.primaryButtonText}>Iniciar sesión</ThemedText>
+      </TouchableOpacity>
 
       <View style={{ alignItems: "center", marginVertical: 16 }}>
         <ThemedText style={{ color: "#7A8A93" }}>o</ThemedText>
       </View>
 
-      <Button
-        title="Crear cuenta"
-        variant="outline"
+      {/* Botón de crear cuenta */}
+      <TouchableOpacity
+        style={styles.secondaryButton}
         onPress={() => router.push("/register")}
-      />
+      >
+        <ThemedText style={styles.secondaryButtonText}>Crear cuenta</ThemedText>
+      </TouchableOpacity>
+
 
       <TouchableOpacity
         onPress={() => router.push("/forgot-password")}
         style={{ marginTop: 16 }}
       >
-        <ThemedText style={{ textAlign: "center", color: COLORS.primary, fontSize: 14 }}>
+        <ThemedText
+          style={{
+            textAlign: "center",
+            color: COLORS.primary,
+            fontSize: 14,
+          }}
+        >
           ¿Olvidaste tu contraseña?
         </ThemedText>
       </TouchableOpacity>
-    </View>
+    </View >
   );
 }
 
@@ -100,5 +115,37 @@ const styles = StyleSheet.create({
   title: {
     marginTop: 8,
   },
+  primaryButton: {
+    backgroundColor: COLORS.primary, // naranja principal de Moverly
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+    marginTop: 8,
+  },
+  primaryButtonText: {
+    color: "#FFF",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
+  secondaryButton: {
+    borderWidth: 1.5,
+    borderColor: "#A0AABA", // gris claro elegante
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+    backgroundColor: "transparent",
+  },
+  secondaryButtonText: {
+    color: "#A0AABA",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
 
 });

@@ -1,28 +1,23 @@
-import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { View, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
 import { useState } from "react";
 import ThemedText from "../../components/ui/themed-text";
 import { COLORS, SPACING, RADIUS } from "../../constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "react-native";
 import { router } from "expo-router";
-
-
 
 export default function HomeScreen() {
   const [selectedVehicle, setSelectedVehicle] = useState("Camioneta");
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Banner con overlay */}
+      {/* Banner */}
       <View style={styles.bannerContainer}>
         <Image
           source={require("../../assets/images/home-banner.png")}
           style={styles.bannerImage}
         />
-
-        {/* Opaque overlay */}
         <View style={styles.bannerOverlayDark} />
 
-        {/* Textos encima */}
         <View style={styles.bannerOverlay}>
           <ThemedText size={28} weight="bold" style={styles.bannerText}>
             Hola, Angie 👋
@@ -33,13 +28,15 @@ export default function HomeScreen() {
         </View>
       </View>
 
-
-      {/* Card principal */}
-      <TouchableOpacity style={styles.card}>
+      {/* Botón principal */}
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => router.push({ pathname: "/(tabs)/quotes", params: { vehicle: selectedVehicle } })}
+      >
         <Ionicons name="location-outline" size={28} color={COLORS.primary} />
         <View style={{ flex: 1, marginLeft: SPACING.sm }}>
-          <ThemedText weight="bold" size={3}>Solicitar mudanza</ThemedText>
-          <ThemedText color={COLORS.gray} size={14}>
+          <ThemedText weight="bold" size={1}>Solicitar mudanza</ThemedText>
+          <ThemedText color={COLORS.gray} size={12}>
             Reserva un camión en minutos
           </ThemedText>
         </View>
@@ -47,19 +44,19 @@ export default function HomeScreen() {
       </TouchableOpacity>
 
       {/* Accesos rápidos */}
+      <ThemedText weight="bold" size={18} style={styles.sectionTitle}>
+        Accesos rápidos
+      </ThemedText>
+
       <View style={styles.quickActions}>
-        <ActionButton icon="home-outline" text="Casa" />
-        <ActionButton icon="briefcase-outline" text="Trabajo" />
-        <ActionButton icon="star-outline" text="Favoritos" />
+        <ActionButton icon="home-outline" text="Casa" route="/home-house" />
+        <ActionButton icon="briefcase-outline" text="Trabajo" route="/home-work" />
+        <ActionButton icon="star-outline" text="Favoritos" route="/home-favorites" />
       </View>
 
       {/* Tamaño del vehículo */}
-      <View style={{ marginTop: SPACING.xl, backgroundColor: COLORS.white, padding: SPACING.md, borderRadius: RADIUS.lg }}>
-        <ThemedText
-          weight="bold"
-          size={20}
-          style={{ color: COLORS.text, marginBottom: SPACING.sm }}
-        >
+      <View style={styles.vehicleSection}>
+        <ThemedText weight="bold" size={20} style={{ color: COLORS.text, marginBottom: SPACING.sm }}>
           Tamaño del vehículo
         </ThemedText>
 
@@ -79,35 +76,25 @@ export default function HomeScreen() {
           <VehicleSize
             text="Tráiler"
             icon="trail-sign-outline"
-            onSelect={() => setSelectedVehicle("Trailer")}
-            selected={selectedVehicle === "Trailer"}
+            onSelect={() => setSelectedVehicle("Tráiler")}
+            selected={selectedVehicle === "Tráiler"}
           />
         </View>
 
         <TouchableOpacity
           style={styles.quoteButton}
-          onPress={() => router.push({ pathname: "/(tabs)/quotes", params: { vehicle: selectedVehicle } })}
+          onPress={() =>
+            router.push({ pathname: "/(tabs)/quotes", params: { vehicle: selectedVehicle } })
+          }
         >
-          <ThemedText style={styles.quoteButtonText}>
-            Obtener cotización
-          </ThemedText>
+          <ThemedText style={styles.quoteButtonText}>Obtener cotización</ThemedText>
         </TouchableOpacity>
       </View>
 
-
-      <ThemedText
-        weight="bold"
-        size={20}
-        style={{
-          marginTop: SPACING.lg,
-          marginBottom: SPACING.sm,
-          color: COLORS.text,
-          textAlign: "center",
-        }}
-      >
+      {/* Cómo funciona */}
+      <ThemedText weight="bold" size={20} style={styles.sectionTitle}>
         ¿Cómo funciona?
       </ThemedText>
-
 
       <View style={styles.stepsBox}>
         <StepItem
@@ -118,7 +105,7 @@ export default function HomeScreen() {
         <StepItem
           icon="cube-outline"
           title="Escoge el vehículo"
-          text="Camioneta, camión o trailer"
+          text="Camioneta, camión o tráiler"
         />
         <StepItem
           icon="card-outline"
@@ -126,7 +113,6 @@ export default function HomeScreen() {
           text="Paga de forma segura y monitorea tu viaje"
         />
       </View>
-
     </ScrollView>
   );
 }
@@ -136,17 +122,19 @@ export default function HomeScreen() {
 function ActionButton({
   icon,
   text,
+  route,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   text: string;
+  route: string;
 }) {
   return (
-    <TouchableOpacity style={styles.actionBtn}>
-      <Ionicons name={icon} size={26} color={COLORS.primary} />
-      <ThemedText
-        size={13}
-        style={{ color: COLORS.text, marginTop: 4, textAlign: "center" }}
-      >
+    <TouchableOpacity
+      style={styles.actionBtn}
+      onPress={() => router.push(route as any)}
+    >
+      <Ionicons name={icon} size={28} color={COLORS.primary} />
+      <ThemedText size={13} style={styles.actionText}>
         {text}
       </ThemedText>
     </TouchableOpacity>
@@ -154,15 +142,7 @@ function ActionButton({
 }
 
 
-function StepItem({
-  icon,
-  title,
-  text,
-}: {
-  icon: keyof typeof Ionicons.glyphMap;
-  title: string;
-  text: string;
-}) {
+function StepItem({ icon, title, text }: { icon: keyof typeof Ionicons.glyphMap; title: string; text: string; }) {
   return (
     <View style={styles.stepItem}>
       <Ionicons name={icon} size={28} color={COLORS.primary} />
@@ -201,7 +181,6 @@ function VehicleSize({
   );
 }
 
-
 /* -------- ESTILOS -------- */
 
 const styles = StyleSheet.create({
@@ -212,7 +191,11 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.xl,
     paddingBottom: 100,
   },
-
+  sectionTitle: {
+    marginTop: SPACING.lg,
+    marginBottom: SPACING.sm,
+    color: "#09295d",
+  },
   card: {
     backgroundColor: COLORS.white,
     flexDirection: "row",
@@ -232,7 +215,46 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.lg,
     justifyContent: "center",
     alignItems: "center",
-    gap: 6,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+  actionText: {
+    color: COLORS.text,
+    marginTop: 4,
+    textAlign: "center",
+  },
+  vehicleSection: {
+    marginTop: SPACING.xl,
+    backgroundColor: COLORS.white,
+    padding: SPACING.md,
+    borderRadius: RADIUS.lg,
+  },
+  vehicleOptions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: SPACING.lg,
+  },
+  vehicleCard: {
+    flex: 1,
+    height: 95,
+    backgroundColor: COLORS.inputBackground,
+    borderRadius: RADIUS.lg,
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 6,
+  },
+  quoteButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: RADIUS.lg,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  quoteButtonText: {
+    color: COLORS.white,
+    fontWeight: "bold",
+    fontSize: 16,
   },
   stepsBox: {
     backgroundColor: COLORS.white,
@@ -251,26 +273,22 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginBottom: SPACING.lg,
   },
-
   bannerImage: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
   },
-
   bannerOverlay: {
     position: "absolute",
     bottom: 20,
     left: 20,
   },
-
   bannerText: {
     color: "#FFF",
     textShadowColor: "rgba(0,0,0,0.4)",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 6,
   },
-
   bannerSubText: {
     color: "#FFF",
     textShadowColor: "rgba(0,0,0,0.4)",
@@ -281,41 +299,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "100%",
-    backgroundColor: "rgba(0,0,0,0.35)", // opacidad ajustable (0.25 - 0.50)
+    backgroundColor: "rgba(0,0,0,0.35)",
   },
-  vehicleOptions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: SPACING.lg,
-  },
-
-  vehicleCard: {
-    flex: 1,
-    height: 95,
-    backgroundColor: COLORS.inputBackground,
-    borderRadius: RADIUS.lg,
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 6,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-
-  quoteButton: {
-    backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.lg,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-
-  quoteButtonText: {
-    color: COLORS.white,
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-
-
-
 });

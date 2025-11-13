@@ -89,7 +89,8 @@ export default function RegisterScreen() {
       />
 
       {/* Botón */}
-      <Button title="Crear cuenta" onPress={handleSubmit(onSubmit)} />
+      <Button title="Crear cuenta" onPress={handleSubmit(onSubmit)}
+       />
 
       <TouchableOpacity
         onPress={() => router.push("/login")}
