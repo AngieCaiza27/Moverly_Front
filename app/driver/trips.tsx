@@ -94,12 +94,12 @@ export default function DriverTripsScreen() {
       <View style={styles.cardHeader}>
         <View style={styles.passengerInfo}>
           <View style={styles.passengerRow}>
-            <ThemedText weight="bold" size={15}>
+            <ThemedText weight="bold" color="black" size={15}>
               {item.passengerName}
             </ThemedText>
             <View style={styles.ratingBadge}>
               <Ionicons name="star" size={12} color={COLORS.warning} />
-              <ThemedText size={11} weight="bold">
+              <ThemedText size={11} weight="bold" color="black">
                 {item.passengerRating}
               </ThemedText>
             </View>
@@ -133,10 +133,10 @@ export default function DriverTripsScreen() {
           </View>
         </View>
         <View style={styles.routeDetails}>
-          <ThemedText size={13} weight="bold">
+          <ThemedText size={13} weight="bold" color="black">
             {item.pickupLocation}
           </ThemedText>
-          <ThemedText size={13} weight="bold">
+          <ThemedText size={13} weight="bold" color="black">
             {item.dropoffLocation}
           </ThemedText>
         </View>
@@ -146,14 +146,14 @@ export default function DriverTripsScreen() {
       <View style={styles.tripInfo}>
         <View style={styles.infoItem}>
           <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
-          <ThemedText size={12} weight="bold">
+          <ThemedText size={12} weight="bold" color="black">
             {item.distance}
           </ThemedText>
         </View>
         <View style={styles.infoDivider} />
         <View style={styles.infoItem}>
           <Ionicons name="time" size={16} color={COLORS.primary} />
-          <ThemedText size={12} weight="bold">
+          <ThemedText size={12} weight="bold" color="black">
             {item.estimatedTime}
           </ThemedText>
         </View>

@@ -18,7 +18,7 @@ export default function DriverProfileScreen() {
         </View>
 
         <View style={styles.profileInfo}>
-          <ThemedText size={20} weight="bold">
+          <ThemedText size={20} weight="bold" color="black">
             Carlos Rodríguez
           </ThemedText>
           <ThemedText size={12} color={COLORS.gray} style={styles.profileStatus}>
@@ -46,7 +46,7 @@ export default function DriverProfileScreen() {
       <View style={styles.statsSection}>
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
-            <ThemedText size={18} weight="bold">
+            <ThemedText size={18} weight="bold" color="black">
               $2,345.50
             </ThemedText>
             <ThemedText size={11} color={COLORS.gray} style={styles.statLabel}>
@@ -55,7 +55,7 @@ export default function DriverProfileScreen() {
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <ThemedText size={18} weight="bold">
+            <ThemedText size={18} weight="bold" color="black">
               42
             </ThemedText>
             <ThemedText size={11} color={COLORS.gray} style={styles.statLabel}>
@@ -66,7 +66,7 @@ export default function DriverProfileScreen() {
 
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
-            <ThemedText size={18} weight="bold">
+            <ThemedText size={18} weight="bold" color="black">
               98%
             </ThemedText>
             <ThemedText size={11} color={COLORS.gray} style={styles.statLabel}>
@@ -75,7 +75,7 @@ export default function DriverProfileScreen() {
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <ThemedText size={18} weight="bold">
+            <ThemedText size={18} weight="bold" color="black">
               1.2 h
             </ThemedText>
             <ThemedText size={11} color={COLORS.gray} style={styles.statLabel}>
@@ -87,7 +87,7 @@ export default function DriverProfileScreen() {
 
       {/* Vehicle Information */}
       <View style={styles.sectionContainer}>
-        <ThemedText size={18} weight="bold" style={styles.sectionTitle}>
+        <ThemedText size={18} weight="bold" color="black" style={styles.sectionTitle}>
           Información del Vehículo
         </ThemedText>
         <View style={styles.infoCard}>
@@ -98,7 +98,7 @@ export default function DriverProfileScreen() {
                 Modelo
               </ThemedText>
             </View>
-            <ThemedText size={14} weight="bold">
+            <ThemedText size={14} weight="bold" color="black">
               Toyota Corolla 2023
             </ThemedText>
           </View>
@@ -110,7 +110,7 @@ export default function DriverProfileScreen() {
                 Placa
               </ThemedText>
             </View>
-            <ThemedText size={14} weight="bold">
+            <ThemedText size={14} weight="bold" color="black">
               ABC-1234
             </ThemedText>
           </View>
@@ -134,7 +134,7 @@ export default function DriverProfileScreen() {
 
       {/* Document Status */}
       <View style={styles.sectionContainer}>
-        <ThemedText size={18} weight="bold" style={styles.sectionTitle}>
+        <ThemedText size={18} weight="bold" color="black" style={styles.sectionTitle}>
           Estado de Documentos
         </ThemedText>
 
@@ -143,7 +143,7 @@ export default function DriverProfileScreen() {
             <Ionicons name="document-text" size={24} color={COLORS.success} />
           </View>
           <View style={styles.documentInfo}>
-            <ThemedText weight="bold" size={14}>
+            <ThemedText weight="bold" color="black" size={14}>
               Cédula de Ciudadanía
             </ThemedText>
             <ThemedText size={12} color={COLORS.gray}>
@@ -160,7 +160,7 @@ export default function DriverProfileScreen() {
             <Ionicons name="document-text" size={24} color={COLORS.success} />
           </View>
           <View style={styles.documentInfo}>
-            <ThemedText weight="bold" size={14}>
+            <ThemedText weight="bold" color="black" size={14}>
               Licencia de Conducción
             </ThemedText>
             <ThemedText size={12} color={COLORS.gray}>
@@ -177,7 +177,7 @@ export default function DriverProfileScreen() {
             <Ionicons name="document-text" size={24} color={COLORS.warning} />
           </View>
           <View style={styles.documentInfo}>
-            <ThemedText weight="bold" size={14}>
+            <ThemedText weight="bold" color="black" size={14}>
               Certificado de Seguro
             </ThemedText>
             <ThemedText size={12} color={COLORS.gray}>
@@ -194,7 +194,7 @@ export default function DriverProfileScreen() {
             <Ionicons name="document-text" size={24} color={COLORS.error} />
           </View>
           <View style={styles.documentInfo}>
-            <ThemedText weight="bold" size={14}>
+            <ThemedText weight="bold" color="black" size={14}>
               Revisión Técnico Mecánica
             </ThemedText>
             <ThemedText size={12} color={COLORS.gray}>
@@ -209,7 +209,7 @@ export default function DriverProfileScreen() {
 
       {/* Account Settings */}
       <View style={styles.sectionContainer}>
-        <ThemedText size={18} weight="bold" style={styles.sectionTitle}>
+        <ThemedText size={18} weight="bold" color="black" style={styles.sectionTitle}>
           Configuración de Cuenta
         </ThemedText>
 
@@ -217,7 +217,7 @@ export default function DriverProfileScreen() {
           <View style={styles.settingIcon}>
             <Ionicons name="person" size={20} color={COLORS.primary} />
           </View>
-          <ThemedText size={14} weight="bold" style={styles.settingText}>
+          <ThemedText size={14} weight="bold" color="black" style={styles.settingText}>
             Editar Perfil
           </ThemedText>
           <Ionicons name="chevron-forward" size={16} color={COLORS.gray} />
@@ -227,7 +227,7 @@ export default function DriverProfileScreen() {
           <View style={styles.settingIcon}>
             <Ionicons name="lock-closed" size={20} color={COLORS.primary} />
           </View>
-          <ThemedText size={14} weight="bold" style={styles.settingText}>
+          <ThemedText size={14} weight="bold" color="black" style={styles.settingText}>
             Cambiar Contraseña
           </ThemedText>
           <Ionicons name="chevron-forward" size={16} color={COLORS.gray} />
@@ -237,7 +237,7 @@ export default function DriverProfileScreen() {
           <View style={styles.settingIcon}>
             <Ionicons name="card" size={20} color={COLORS.primary} />
           </View>
-          <ThemedText size={14} weight="bold" style={styles.settingText}>
+          <ThemedText size={14} weight="bold" color="black" style={styles.settingText}>
             Métodos de Pago
           </ThemedText>
           <Ionicons name="chevron-forward" size={16} color={COLORS.gray} />
@@ -247,7 +247,7 @@ export default function DriverProfileScreen() {
           <View style={styles.settingIcon}>
             <Ionicons name="notifications" size={20} color={COLORS.primary} />
           </View>
-          <ThemedText size={14} weight="bold" style={styles.settingText}>
+          <ThemedText size={14} weight="bold" color="black" style={styles.settingText}>
             Notificaciones
           </ThemedText>
           <Ionicons name="chevron-forward" size={16} color={COLORS.gray} />
@@ -257,7 +257,7 @@ export default function DriverProfileScreen() {
           <View style={styles.settingIcon}>
             <Ionicons name="help-circle" size={20} color={COLORS.primary} />
           </View>
-          <ThemedText size={14} weight="bold" style={styles.settingText}>
+          <ThemedText size={14} weight="bold" color="black" style={styles.settingText}>
             Ayuda y Soporte
           </ThemedText>
           <Ionicons name="chevron-forward" size={16} color={COLORS.gray} />

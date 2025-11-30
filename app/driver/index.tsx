@@ -8,7 +8,7 @@ export default function DriverHomeScreen() {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
-        <ThemedText size={28} weight="bold" style={styles.headerTitle}>
+        <ThemedText size={28} weight="bold" color="black" style={styles.headerTitle}>
           Bienvenido, Chofer 👋
         </ThemedText>
         <ThemedText size={16} style={styles.headerSubtitle}>
@@ -48,7 +48,7 @@ export default function DriverHomeScreen() {
             <ThemedText size={12} color={COLORS.gray}>
               Viajes Hoy
             </ThemedText>
-            <ThemedText size={20} weight="bold">
+            <ThemedText size={20} weight="bold" color="black">
               5
             </ThemedText>
           </View>
@@ -62,7 +62,7 @@ export default function DriverHomeScreen() {
             <ThemedText size={12} color={COLORS.gray}>
               Ganancias Hoy
             </ThemedText>
-            <ThemedText size={20} weight="bold">
+            <ThemedText size={20} weight="bold" color="black">
               $45.50
             </ThemedText>
           </View>
@@ -76,7 +76,7 @@ export default function DriverHomeScreen() {
             <ThemedText size={12} color={COLORS.gray}>
               Calificación
             </ThemedText>
-            <ThemedText size={20} weight="bold">
+            <ThemedText size={20} weight="bold" color="black">
               4.8
             </ThemedText>
           </View>
@@ -85,21 +85,21 @@ export default function DriverHomeScreen() {
 
       {/* Current Trip */}
       <View style={styles.sectionContainer}>
-        <ThemedText weight="bold" size={18} style={styles.sectionTitle}>
+        <ThemedText weight="bold" size={18} color="black" style={styles.sectionTitle}>
           Viaje Actual
         </ThemedText>
         <View style={styles.tripCard}>
           <View style={styles.tripHeader}>
             <View>
-              <ThemedText size={13} weight="bold" style={styles.tripFrom}>
+              <ThemedText size={13} weight="bold" color="black" style={styles.tripFrom}>
                 📍 Cra 7 No. 23-45
               </ThemedText>
-              <ThemedText size={13} weight="bold" style={styles.tripTo}>
+              <ThemedText size={13} weight="bold" color="black" style={styles.tripTo}>
                 📍 Av. Paseo 100 No. 50
               </ThemedText>
             </View>
             <View style={styles.tripTime}>
-              <ThemedText size={12} weight="bold">
+              <ThemedText size={12} weight="bold" color="black">
                 12 min
               </ThemedText>
               <ThemedText size={11} color={COLORS.gray} style={styles.tripDistance}>
@@ -112,7 +112,7 @@ export default function DriverHomeScreen() {
               <Ionicons name="person" size={20} color="#fff" />
             </View>
             <View style={styles.passengerInfo}>
-              <ThemedText weight="bold">Juan Pérez</ThemedText>
+              <ThemedText weight="bold" color="black">Juan Pérez</ThemedText>
               <ThemedText size={11} color={COLORS.gray} style={styles.passengerRating}>
                 ⭐ 4.9 • 25 viajes
               </ThemedText>
@@ -128,13 +128,13 @@ export default function DriverHomeScreen() {
 
       {/* Upcoming Trips */}
       <View style={styles.sectionContainer}>
-        <ThemedText weight="bold" size={18} style={styles.sectionTitle}>
+        <ThemedText weight="bold" size={18} color="black" style={styles.sectionTitle}>
           Próximos Viajes
         </ThemedText>
 
         <TouchableOpacity style={[styles.tripListItem, { borderLeftColor: COLORS.info }]}>
           <View style={styles.tripListContent}>
-            <ThemedText weight="bold">María García</ThemedText>
+            <ThemedText weight="bold" color="black">María García</ThemedText>
             <ThemedText size={12} color={COLORS.gray} style={styles.tripListTime}>
               En 15 minutos
             </ThemedText>
@@ -144,7 +144,7 @@ export default function DriverHomeScreen() {
 
         <TouchableOpacity style={[styles.tripListItem, { borderLeftColor: COLORS.success }]}>
           <View style={styles.tripListContent}>
-            <ThemedText weight="bold">Carlos López</ThemedText>
+            <ThemedText weight="bold" color="black">Carlos López</ThemedText>
             <ThemedText size={12} color={COLORS.gray} style={styles.tripListTime}>
               En 45 minutos
             </ThemedText>
@@ -155,34 +155,34 @@ export default function DriverHomeScreen() {
 
       {/* Quick Actions */}
       <View style={styles.sectionContainer}>
-        <ThemedText weight="bold" size={18} style={styles.sectionTitle}>
+        <ThemedText weight="bold" size={18} color="black" style={styles.sectionTitle}>
           Acciones Rápidas
         </ThemedText>
         <View style={styles.actionsGrid}>
           <TouchableOpacity style={styles.actionCard}>
             <Ionicons name="call" size={32} color={COLORS.primary} />
-            <ThemedText size={12} weight="bold">
+            <ThemedText size={12} weight="bold" color="black">
               Llamar
             </ThemedText>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionCard}>
             <Ionicons name="mail" size={32} color={COLORS.success} />
-            <ThemedText size={12} weight="bold">
+            <ThemedText size={12} weight="bold" color="black">
               Mensaje
             </ThemedText>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionCard}>
             <Ionicons name="map" size={32} color={COLORS.warning} />
-            <ThemedText size={12} weight="bold">
+            <ThemedText size={12} weight="bold" color="black">
               Ruta
             </ThemedText>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionCard}>
             <Ionicons name="information-circle" size={32} color={COLORS.secondary} />
-            <ThemedText size={12} weight="bold">
+            <ThemedText size={12} weight="bold" color="black">
               Soporte
             </ThemedText>
           </TouchableOpacity>
@@ -333,11 +333,11 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     width: "48%",
-    aspectRatio: 1,
+    paddingVertical: SPACING.lg,
     backgroundColor: COLORS.white,
     borderRadius: RADIUS.lg,
     justifyContent: "center",
     alignItems: "center",
-    gap: SPACING.md,
+    gap: SPACING.sm,
   },
 });
