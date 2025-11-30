@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import ThemedText from "../../components/ui/themed-text";
 import { COLORS, RADIUS, SPACING } from "../../constants/Colors";
@@ -265,7 +266,9 @@ export default function DriverProfileScreen() {
       </View>
 
       {/* Logout Button */}
-      <TouchableOpacity style={[styles.logoutButton, { backgroundColor: COLORS.error }]}>
+      <TouchableOpacity 
+        style={[styles.logoutButton, { backgroundColor: COLORS.error }]}
+        onPress={() => router.replace("/login")}>
         <Ionicons name="log-out" size={18} color="#fff" />
         <ThemedText color="#fff" weight="bold" size={14}>
           Cerrar Sesión
