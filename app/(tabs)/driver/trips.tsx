@@ -1,9 +1,8 @@
-import { ThemedText } from '@/components/themed-text';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useState } from 'react';
-import { FlatList, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import ThemedText from "../../../components/ui/themed-text";
+import { COLORS, RADIUS, SPACING } from "../../../constants/Colors";
 
 interface Trip {
   id: string;
@@ -15,101 +14,103 @@ interface Trip {
   estimatedTime: string;
   fare: string;
   pickupTime: string;
-  status: 'available' | 'completed' | 'cancelled';
+  status: "available" | "completed" | "cancelled";
 }
 
 const AVAILABLE_TRIPS: Trip[] = [
   {
-    id: '1',
-    passengerName: 'Ana Martínez',
+    id: "1",
+    passengerName: "Ana Martínez",
     passengerRating: 4.9,
-    pickupLocation: 'Cra 11 No. 100',
-    dropoffLocation: 'Centro Comercial Premium',
-    distance: '6.2 km',
-    estimatedTime: '18 min',
-    fare: '$18.500',
-    pickupTime: 'Ahora',
-    status: 'available',
+    pickupLocation: "Cra 11 No. 100",
+    dropoffLocation: "Centro Comercial Premium",
+    distance: "6.2 km",
+    estimatedTime: "18 min",
+    fare: "$18.500",
+    pickupTime: "Ahora",
+    status: "available",
   },
   {
-    id: '2',
-    passengerName: 'Roberto Silva',
+    id: "2",
+    passengerName: "Roberto Silva",
     passengerRating: 4.7,
-    pickupLocation: 'Av. Carrera 50 No. 25',
-    dropoffLocation: 'Terminal de Transporte',
-    distance: '8.1 km',
-    estimatedTime: '22 min',
-    fare: '$24.300',
-    pickupTime: 'En 3 min',
-    status: 'available',
+    pickupLocation: "Av. Carrera 50 No. 25",
+    dropoffLocation: "Terminal de Transporte",
+    distance: "8.1 km",
+    estimatedTime: "22 min",
+    fare: "$24.300",
+    pickupTime: "En 3 min",
+    status: "available",
   },
   {
-    id: '3',
-    passengerName: 'Sofía López',
+    id: "3",
+    passengerName: "Sofía López",
     passengerRating: 5.0,
-    pickupLocation: 'Centro Comercial El Hueco',
-    dropoffLocation: 'Residencial Las Flores',
-    distance: '4.8 km',
-    estimatedTime: '15 min',
-    fare: '$16.200',
-    pickupTime: 'En 5 min',
-    status: 'available',
+    pickupLocation: "Centro Comercial El Hueco",
+    dropoffLocation: "Residencial Las Flores",
+    distance: "4.8 km",
+    estimatedTime: "15 min",
+    fare: "$16.200",
+    pickupTime: "En 5 min",
+    status: "available",
   },
 ];
 
 const COMPLETED_TRIPS: Trip[] = [
   {
-    id: '101',
-    passengerName: 'Carlos Mendoza',
+    id: "101",
+    passengerName: "Carlos Mendoza",
     passengerRating: 4.8,
-    pickupLocation: 'Estación de Policía',
-    dropoffLocation: 'Cra 8 No. 45',
-    distance: '3.5 km',
-    estimatedTime: '12 min',
-    fare: '$12.800',
-    pickupTime: 'Hoy 14:30',
-    status: 'completed',
+    pickupLocation: "Estación de Policía",
+    dropoffLocation: "Cra 8 No. 45",
+    distance: "3.5 km",
+    estimatedTime: "12 min",
+    fare: "$12.800",
+    pickupTime: "Hoy 14:30",
+    status: "completed",
   },
   {
-    id: '102',
-    passengerName: 'Laura Gómez',
+    id: "102",
+    passengerName: "Laura Gómez",
     passengerRating: 4.6,
-    pickupLocation: 'Centro Médico San Rafael',
-    dropoffLocation: 'Av. Paseo 100',
-    distance: '5.2 km',
-    estimatedTime: '16 min',
-    fare: '$18.100',
-    pickupTime: 'Hoy 13:15',
-    status: 'completed',
+    pickupLocation: "Centro Médico San Rafael",
+    dropoffLocation: "Av. Paseo 100",
+    distance: "5.2 km",
+    estimatedTime: "16 min",
+    fare: "$18.100",
+    pickupTime: "Hoy 13:15",
+    status: "completed",
   },
 ];
 
 export default function DriverTripsScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
-  const [activeTab, setActiveTab] = useState<'available' | 'completed'>('available');
+  const [activeTab, setActiveTab] = useState<"available" | "completed">("available");
 
-  const trips = activeTab === 'available' ? AVAILABLE_TRIPS : COMPLETED_TRIPS;
+  const trips = activeTab === "available" ? AVAILABLE_TRIPS : COMPLETED_TRIPS;
 
   const renderTripCard = ({ item }: { item: Trip }) => (
-    <View style={[styles.tripCard, { backgroundColor: colors.cardBackground }]}>
+    <View style={styles.tripCard}>
       {/* Header */}
       <View style={styles.cardHeader}>
         <View style={styles.passengerInfo}>
           <View style={styles.passengerRow}>
-            <ThemedText type="defaultSemiBold" style={styles.passengerName}>
+            <ThemedText weight="bold" size={15}>
               {item.passengerName}
             </ThemedText>
             <View style={styles.ratingBadge}>
-              <IconSymbol size={12} name="star.fill" color="#FF9800" />
-              <ThemedText style={styles.ratingText}>{item.passengerRating}</ThemedText>
+              <Ionicons name="star" size={12} color={COLORS.warning} />
+              <ThemedText size={11} weight="bold">
+                {item.passengerRating}
+              </ThemedText>
             </View>
           </View>
-          <ThemedText style={styles.pickupTime}>{item.pickupTime}</ThemedText>
+          <ThemedText size={12} color={COLORS.gray}>
+            {item.pickupTime}
+          </ThemedText>
         </View>
-        {activeTab === 'available' && (
-          <View style={[styles.fareBadge, { backgroundColor: colors.tint }]}>
-            <ThemedText style={styles.fareText} lightColor="#fff" darkColor="#fff">
+        {activeTab === "available" && (
+          <View style={[styles.fareBadge, { backgroundColor: COLORS.primary }]}>
+            <ThemedText color="#fff" weight="bold" size={16}>
               {item.fare}
             </ThemedText>
           </View>
@@ -119,61 +120,77 @@ export default function DriverTripsScreen() {
       {/* Route */}
       <View style={styles.routeSection}>
         <View style={styles.routeMarkers}>
-          <View style={[styles.marker, { backgroundColor: colors.tint }]}>
-            <ThemedText style={styles.markerText}>A</ThemedText>
+          <View style={[styles.marker, { backgroundColor: COLORS.primary }]}>
+            <ThemedText color="#fff" weight="bold" size={12}>
+              A
+            </ThemedText>
           </View>
           <View style={styles.routeLine} />
-          <View style={[styles.marker, { backgroundColor: colors.tint }]}>
-            <ThemedText style={styles.markerText}>B</ThemedText>
+          <View style={[styles.marker, { backgroundColor: COLORS.primary }]}>
+            <ThemedText color="#fff" weight="bold" size={12}>
+              B
+            </ThemedText>
           </View>
         </View>
         <View style={styles.routeDetails}>
-          <ThemedText style={styles.locationLabel}>{item.pickupLocation}</ThemedText>
-          <ThemedText style={styles.locationLabel}>{item.dropoffLocation}</ThemedText>
+          <ThemedText size={13} weight="bold">
+            {item.pickupLocation}
+          </ThemedText>
+          <ThemedText size={13} weight="bold">
+            {item.dropoffLocation}
+          </ThemedText>
         </View>
       </View>
 
       {/* Trip Info */}
       <View style={styles.tripInfo}>
         <View style={styles.infoItem}>
-            <IconSymbol size={16} name="arrow.right" color={colors.tint} />
-            <ThemedText style={styles.infoText}>{item.distance}</ThemedText>
-          </View>
+          <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
+          <ThemedText size={12} weight="bold">
+            {item.distance}
+          </ThemedText>
+        </View>
         <View style={styles.infoDivider} />
         <View style={styles.infoItem}>
-          <IconSymbol size={16} name="clock.fill" color={colors.tint} />
-          <ThemedText style={styles.infoText}>{item.estimatedTime}</ThemedText>
+          <Ionicons name="time" size={16} color={COLORS.primary} />
+          <ThemedText size={12} weight="bold">
+            {item.estimatedTime}
+          </ThemedText>
         </View>
       </View>
 
       {/* Actions */}
-      {activeTab === 'available' ? (
+      {activeTab === "available" ? (
         <View style={styles.actionsContainer}>
           <TouchableOpacity
-            style={[styles.actionButtonSecondary, { borderColor: colors.tint }]}>
-            <ThemedText style={[styles.actionButtonText, { color: colors.tint }]}>
+            style={[styles.actionButtonSecondary, { borderColor: COLORS.primary }]}>
+            <ThemedText size={13} weight="bold" color={COLORS.primary}>
               Rechazar
             </ThemedText>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButtonPrimary, { backgroundColor: colors.tint }]}>
-            <IconSymbol size={18} name="checkmark" color="#fff" />
-            <ThemedText style={styles.acceptButtonText}>Aceptar</ThemedText>
+          <TouchableOpacity style={[styles.actionButtonPrimary, { backgroundColor: COLORS.primary }]}>
+            <Ionicons name="checkmark" size={18} color="#fff" />
+            <ThemedText color="#fff" weight="bold" size={13}>
+              Aceptar
+            </ThemedText>
           </TouchableOpacity>
         </View>
       ) : (
         <View style={styles.completedBadge}>
-          <IconSymbol size={16} name="checkmark.circle.fill" color="#4CAF50" />
-          <ThemedText style={styles.completedText}>Viaje Completado</ThemedText>
+          <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
+          <ThemedText size={13} weight="bold" color={COLORS.success}>
+            Viaje Completado
+          </ThemedText>
         </View>
       )}
     </View>
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <ThemedText type="title" style={styles.headerTitle}>
+        <ThemedText size={28} weight="bold">
           Viajes
         </ThemedText>
       </View>
@@ -183,19 +200,18 @@ export default function DriverTripsScreen() {
         <TouchableOpacity
           style={[
             styles.tabButton,
-            activeTab === 'available' && [styles.tabButtonActive, { borderBottomColor: colors.tint }],
+            activeTab === "available" && [styles.tabButtonActive, { borderBottomColor: COLORS.primary }],
           ]}
-          onPress={() => setActiveTab('available')}>
-          <IconSymbol
+          onPress={() => setActiveTab("available")}>
+          <Ionicons
+            name="send"
             size={18}
-            name="paperplane.fill"
-            color={activeTab === 'available' ? colors.tint : colors.tabIconDefault}
+            color={activeTab === "available" ? COLORS.primary : COLORS.gray}
           />
           <ThemedText
-            style={[
-              styles.tabText,
-              activeTab === 'available' && { color: colors.tint, fontWeight: '600' },
-            ]}>
+            size={14}
+            weight={activeTab === "available" ? "bold" : "normal"}
+            color={activeTab === "available" ? COLORS.primary : COLORS.gray}>
             Disponibles
           </ThemedText>
         </TouchableOpacity>
@@ -203,19 +219,18 @@ export default function DriverTripsScreen() {
         <TouchableOpacity
           style={[
             styles.tabButton,
-            activeTab === 'completed' && [styles.tabButtonActive, { borderBottomColor: colors.tint }],
+            activeTab === "completed" && [styles.tabButtonActive, { borderBottomColor: COLORS.primary }],
           ]}
-          onPress={() => setActiveTab('completed')}>
-          <IconSymbol
+          onPress={() => setActiveTab("completed")}>
+          <Ionicons
+            name="checkmark-circle"
             size={18}
-            name="checkmark.circle.fill"
-            color={activeTab === 'completed' ? colors.tint : colors.tabIconDefault}
+            color={activeTab === "completed" ? COLORS.primary : COLORS.gray}
           />
           <ThemedText
-            style={[
-              styles.tabText,
-              activeTab === 'completed' && { color: colors.tint, fontWeight: '600' },
-            ]}>
+            size={14}
+            weight={activeTab === "completed" ? "bold" : "normal"}
+            color={activeTab === "completed" ? COLORS.primary : COLORS.gray}>
             Completados
           </ThemedText>
         </TouchableOpacity>
@@ -230,9 +245,9 @@ export default function DriverTripsScreen() {
         scrollEnabled={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <IconSymbol size={48} name="paperplane.fill" color={colors.tabIconDefault} />
-            <ThemedText style={styles.emptyText}>
-              {activeTab === 'available' ? 'No hay viajes disponibles' : 'Sin viajes completados'}
+            <Ionicons name="send" size={48} color={COLORS.gray} />
+            <ThemedText size={16} color={COLORS.gray}>
+              {activeTab === "available" ? "No hay viajes disponibles" : "Sin viajes completados"}
             </ThemedText>
           </View>
         }
@@ -244,202 +259,153 @@ export default function DriverTripsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: COLORS.background,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 16 : 8,
-    paddingBottom: 12,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    paddingHorizontal: SPACING.md,
+    paddingTop: SPACING.md,
+    paddingBottom: SPACING.md,
   },
   tabContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
+    flexDirection: "row",
+    paddingHorizontal: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    borderBottomColor: COLORS.lightGray,
   },
   tabButton: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    gap: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: SPACING.md,
+    gap: SPACING.sm,
     borderBottomWidth: 3,
-    borderBottomColor: 'transparent',
+    borderBottomColor: "transparent",
   },
   tabButtonActive: {
     borderBottomWidth: 3,
   },
-  tabText: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
   listContent: {
-    padding: 16,
-    gap: 12,
+    padding: SPACING.md,
+    gap: SPACING.md,
   },
   tripCard: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 4,
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
   },
   cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 14,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: SPACING.md,
   },
   passengerInfo: {
     flex: 1,
   },
   passengerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
-  },
-  passengerName: {
-    fontSize: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
+    marginBottom: SPACING.sm,
   },
   ratingBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 2,
-    backgroundColor: 'rgba(255,152,0,0.1)',
-    paddingHorizontal: 6,
+    backgroundColor: `${COLORS.warning}20`,
+    paddingHorizontal: SPACING.sm,
     paddingVertical: 2,
-    borderRadius: 4,
-  },
-  ratingText: {
-    fontSize: 11,
-    fontWeight: '600',
+    borderRadius: RADIUS.sm,
   },
   pickupTime: {
     fontSize: 12,
     opacity: 0.6,
   },
   fareBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  fareText: {
-    fontSize: 16,
-    fontWeight: '700',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.md,
   },
   routeSection: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 12,
-    paddingVertical: 12,
+    flexDirection: "row",
+    gap: SPACING.md,
+    marginBottom: SPACING.md,
+    paddingVertical: SPACING.md,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
-    borderBottomColor: 'rgba(0,0,0,0.05)',
+    borderTopColor: COLORS.lightGray,
+    borderBottomColor: COLORS.lightGray,
   },
   routeMarkers: {
-    alignItems: 'center',
-    gap: 6,
+    alignItems: "center",
+    gap: SPACING.sm,
   },
   marker: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  markerText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 12,
+    justifyContent: "center",
+    alignItems: "center",
   },
   routeLine: {
     width: 2,
     height: 20,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: COLORS.lightGray,
   },
   routeDetails: {
     flex: 1,
-    justifyContent: 'space-around',
-  },
-  locationLabel: {
-    fontSize: 13,
-    fontWeight: '500',
+    justifyContent: "space-around",
   },
   tripInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    gap: 8,
-    marginBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: SPACING.md,
+    gap: SPACING.sm,
+    marginBottom: SPACING.md,
   },
   infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  infoText: {
-    fontSize: 12,
-    fontWeight: '500',
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
   },
   infoDivider: {
     width: 1,
     height: 16,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: COLORS.lightGray,
   },
   actionsContainer: {
-    flexDirection: 'row',
-    gap: 10,
+    flexDirection: "row",
+    gap: SPACING.md,
   },
   actionButtonSecondary: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.md,
     borderWidth: 1.5,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   actionButtonPrimary: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 6,
-  },
-  actionButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  acceptButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#fff',
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.md,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: SPACING.sm,
   },
   completedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 10,
-  },
-  completedText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#4CAF50',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: SPACING.sm,
+    paddingVertical: SPACING.md,
   },
   emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 60,
-    gap: 12,
-  },
-  emptyText: {
-    fontSize: 16,
-    opacity: 0.6,
+    gap: SPACING.md,
   },
 });

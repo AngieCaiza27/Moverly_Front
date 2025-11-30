@@ -1,5 +1,5 @@
-import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
 import { COLORS } from "../../constants/Colors";
 
 export default function TabsLayout() {
@@ -71,7 +71,9 @@ export default function TabsLayout() {
         name="driver"
         options={{
           title: 'Chofer',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="car.fill" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="car" size={22} color={color} />
+          ),
           headerShown: false,
         }}
       />
