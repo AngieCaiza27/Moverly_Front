@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
-import ThemedText from "../../../components/ui/themed-text";
-import { COLORS, RADIUS, SPACING } from "../../../constants/Colors";
+import ThemedText from "../../components/ui/themed-text";
+import { COLORS, RADIUS, SPACING } from "../../constants/Colors";
 
 interface Trip {
   id: string;
@@ -210,7 +210,7 @@ export default function DriverTripsScreen() {
           />
           <ThemedText
             size={14}
-            weight={activeTab === "available" ? "bold" : "normal"}
+            weight={activeTab === "available" ? "bold" : "regular"}
             color={activeTab === "available" ? COLORS.primary : COLORS.gray}>
             Disponibles
           </ThemedText>
@@ -229,7 +229,7 @@ export default function DriverTripsScreen() {
           />
           <ThemedText
             size={14}
-            weight={activeTab === "completed" ? "bold" : "normal"}
+            weight={activeTab === "completed" ? "bold" : "regular"}
             color={activeTab === "completed" ? COLORS.primary : COLORS.gray}>
             Completados
           </ThemedText>

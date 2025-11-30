@@ -67,16 +67,6 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="driver"
-        options={{
-          title: 'Chofer',
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="car" size={22} color={color} />
-          ),
-          headerShown: false,
-        }}
-      />
     </Tabs>
   );
 }

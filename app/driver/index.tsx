@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import ThemedText from "../../../components/ui/themed-text";
-import { COLORS, RADIUS, SPACING } from "../../../constants/Colors";
+import ThemedText from "../../components/ui/themed-text";
+import { COLORS, RADIUS, SPACING } from "../../constants/Colors";
 
 export default function DriverHomeScreen() {
   return (

@@ -1,11 +1,11 @@
-import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import * as yup from "yup";
 
 import FormInput from "../components/ui/FormInput";
-import Button from "../components/ui/Button";
 import ThemedText from "../components/ui/themed-text";
 import { COLORS } from "../constants/Colors";
 
@@ -16,6 +16,7 @@ const schema = yup.object({
 
 export default function LoginScreen() {
   const router = useRouter();
+  const [userType, setUserType] = useState<"user" | "driver" | null>(null);
 
   const { control, handleSubmit } = useForm({
     defaultValues: { email: "", password: "" },
@@ -23,9 +24,78 @@ export default function LoginScreen() {
   });
 
   const onSubmit = () => {
-    router.replace('/(tabs)');
-
+    if (userType === "driver") {
+      router.replace("/driver");
+    } else {
+      router.replace("/(tabs)");
+    }
   };
+
+  // Pantalla de selección de tipo de usuario
+  if (userType === null) {
+    return (
+      <View style={styles.container}>
+        {/* Logo + Título */}
+        <View style={{ alignItems: "center", marginBottom: 32 }}>
+          <Image
+            source={require("../assets/images/logo.png")}
+            style={{ width: 220, height: 220, borderRadius: 20 }}
+          />
+          <ThemedText
+            size={34}
+            weight="bold"
+            style={[styles.title, { color: COLORS.primary }]}
+          >
+            Moverly
+          </ThemedText>
+          <ThemedText style={{ color: "#7A8A93" }}>
+            Mudarte nunca fue tan fácil
+          </ThemedText>
+        </View>
+
+        {/* Selección de tipo de usuario */}
+        <ThemedText size={18} weight="bold" style={styles.sectionTitle}>
+          ¿Cómo accedes?
+        </ThemedText>
+
+        <TouchableOpacity
+          style={styles.typeCard}
+          onPress={() => setUserType("user")}
+        >
+          <Image
+            source={require("../assets/images/logo.png")}
+            style={{ width: 50, height: 50, borderRadius: 10 }}
+          />
+          <View style={{ flex: 1, marginLeft: 16 }}>
+            <ThemedText weight="bold" size={16}>
+              Cliente
+            </ThemedText>
+            <ThemedText size={12} color={COLORS.gray}>
+              Solicitar mudanzas y servicios
+            </ThemedText>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.typeCard}
+          onPress={() => setUserType("driver")}
+        >
+          <Image
+            source={require("../assets/images/logo.png")}
+            style={{ width: 50, height: 50, borderRadius: 10 }}
+          />
+          <View style={{ flex: 1, marginLeft: 16 }}>
+            <ThemedText weight="bold" size={16}>
+              Chofer
+            </ThemedText>
+            <ThemedText size={12} color={COLORS.gray}>
+              Ofrece servicios de mudanza
+            </ThemedText>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -35,7 +105,6 @@ export default function LoginScreen() {
           source={require("../assets/images/logo.png")}
           style={{ width: 220, height: 220, borderRadius: 20 }}
         />
-        {/* 🔸 Texto principal */}
         <ThemedText
           size={34}
           weight="bold"
@@ -44,13 +113,13 @@ export default function LoginScreen() {
           Moverly
         </ThemedText>
         <ThemedText style={{ color: "#7A8A93" }}>
-          Mudarte nunca fue tan fácil
+          {userType === "driver"
+            ? "Acceso para Choferes"
+            : "Acceso para Clientes"}
         </ThemedText>
       </View>
 
-
-
-      {/*  Campos con FormInput */}
+      {/* Campos con FormInput */}
       <FormInput
         control={control}
         name="email"
@@ -86,7 +155,6 @@ export default function LoginScreen() {
         <ThemedText style={styles.secondaryButtonText}>Crear cuenta</ThemedText>
       </TouchableOpacity>
 
-
       <TouchableOpacity
         onPress={() => router.push("/forgot-password")}
         style={{ marginTop: 16 }}
@@ -101,7 +169,23 @@ export default function LoginScreen() {
           ¿Olvidaste tu contraseña?
         </ThemedText>
       </TouchableOpacity>
-    </View >
+
+      {/* Botón para volver */}
+      <TouchableOpacity
+        style={{ marginTop: 24, padding: 12 }}
+        onPress={() => setUserType(null)}
+      >
+        <ThemedText
+          style={{
+            textAlign: "center",
+            color: COLORS.gray,
+            fontSize: 14,
+          }}
+        >
+          ← Volver
+        </ThemedText>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -115,8 +199,23 @@ const styles = StyleSheet.create({
   title: {
     marginTop: 8,
   },
+  sectionTitle: {
+    marginBottom: 16,
+    textAlign: "center",
+    color: "#fff",
+  },
+  typeCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    marginBottom: 12,
+    borderRadius: 14,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+  },
   primaryButton: {
-    backgroundColor: COLORS.primary, // naranja principal de Moverly
+    backgroundColor: COLORS.primary,
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
@@ -132,10 +231,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-
   secondaryButton: {
     borderWidth: 1.5,
-    borderColor: "#A0AABA", // gris claro elegante
+    borderColor: "#A0AABA",
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
@@ -146,6 +244,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-
-
 });

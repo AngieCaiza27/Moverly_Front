@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import ThemedText from "../../../components/ui/themed-text";
-import { COLORS, RADIUS, SPACING } from "../../../constants/Colors";
+import ThemedText from "../../components/ui/themed-text";
+import { COLORS, RADIUS, SPACING } from "../../constants/Colors";
 
 export default function DriverProfileScreen() {
   return (
@@ -105,7 +105,7 @@ export default function DriverProfileScreen() {
 
           <View style={[styles.infoRow, styles.infoDivider]}>
             <View style={styles.infoLabel}>
-              <Ionicons name="numbers" size={20} color={COLORS.primary} />
+              <Ionicons name="id-card" size={20} color={COLORS.primary} />
               <ThemedText size={13} color={COLORS.gray}>
                 Placa
               </ThemedText>

@@ -8,6 +8,7 @@ export default function RootLayout() {
       <Stack.Screen name="forgot-password" />
 
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="driver" />
       <Stack.Screen name="tracking" />
     </Stack>
   );

@@ -1,8 +1,8 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 
-import { COLORS } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '../../constants/Colors';
 
 export default function DriverLayout() {
   return (
