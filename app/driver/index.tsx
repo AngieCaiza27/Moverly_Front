@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, Linking, Modal, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import ThemedText from "../../components/ui/themed-text";
 import { COLORS, RADIUS, SPACING } from "../../constants/Colors";
 
@@ -14,6 +14,14 @@ export default function DriverHomeScreen() {
   const [showTripDetails, setShowTripDetails] = useState(false);
   const [currentModalStep, setCurrentModalStep] = useState<ModalStep>("trip-details");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card"); // Mock payment method
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [showCallModal, setShowCallModal] = useState(false);
+  const [showRouteModal, setShowRouteModal] = useState(false);
+  const [chatMessages, setChatMessages] = useState<Array<{ id: string; text: string; sender: "driver" | "passenger" }>>([
+    { id: "1", text: "Hola, ya estoy en camino", sender: "driver" },
+    { id: "2", text: "Perfecto, en 5 minutos llego", sender: "passenger" },
+  ]);
+  const [chatInput, setChatInput] = useState("");
 
   const statusConfig: Record<DriverStatus, { label: string; color: string; icon: string }> = {
     online: { label: "En Línea", color: COLORS.success, icon: "checkmark-circle" },
@@ -46,6 +54,41 @@ export default function DriverHomeScreen() {
   const handleCloseTripFlow = () => {
     setShowTripDetails(false);
     setCurrentModalStep("trip-details");
+  };
+
+  const handleCallPassenger = () => {
+    setShowCallModal(true);
+  };
+
+  const handleConfirmCall = () => {
+    const phoneNumber = "+573001234567";
+    Linking.openURL(`tel:${phoneNumber}`).catch(() => {
+      Alert.alert("Error", "No se pudo realizar la llamada");
+    });
+    setShowCallModal(false);
+  };
+
+  const handleSendMessage = () => {
+    setShowChatModal(true);
+  };
+
+  const handleOpenRoute = () => {
+    setShowRouteModal(true);
+  };
+
+  const handleSupport = () => {
+    // Navegar a página de soporte
+    Alert.alert("Centro de Soporte", "Redirigiendo a página de soporte...");
+  };
+
+  const handleSendChatMessage = () => {
+    if (chatInput.trim()) {
+      setChatMessages([
+        ...chatMessages,
+        { id: Date.now().toString(), text: chatInput, sender: "driver" },
+      ]);
+      setChatInput("");
+    }
   };
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -272,7 +315,12 @@ export default function DriverHomeScreen() {
 
             {/* Action Buttons */}
             <View style={styles.detailsActions}>
-              <TouchableOpacity style={[styles.actionButton, { backgroundColor: COLORS.primary }]}>
+              <TouchableOpacity 
+                style={[styles.actionButton, { backgroundColor: COLORS.primary }]}
+                onPress={() => {
+                  const phoneNumber = "+573001234567";
+                  Linking.openURL(`tel:${phoneNumber}`);
+                }}>
                 <Ionicons name="call" size={20} color="#fff" />
                 <ThemedText color="#fff" weight="bold" size={14}>
                   Llamar
@@ -457,6 +505,202 @@ export default function DriverHomeScreen() {
           )}
         </View>
       </Modal>
+
+      {/* Chat Modal */}
+      <Modal
+        visible={showChatModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowChatModal(false)}>
+        <View style={styles.chatContainer}>
+          <View style={styles.chatHeader}>
+            <TouchableOpacity onPress={() => setShowChatModal(false)}>
+              <Ionicons name="close" size={28} color="black" />
+            </TouchableOpacity>
+            <View style={styles.chatHeaderInfo}>
+              <ThemedText size={16} weight="bold" color="black">
+                Juan Pérez
+              </ThemedText>
+              <ThemedText size={12} color={COLORS.gray}>
+                ⭐ 4.9
+              </ThemedText>
+            </View>
+            <View style={{ width: 28 }} />
+          </View>
+
+          <FlatList
+            data={chatMessages}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View
+                style={[
+                  styles.chatMessage,
+                  item.sender === "driver" ? styles.driverMessage : styles.passengerMessage,
+                ]}>
+                <ThemedText
+                  size={14}
+                  color={item.sender === "driver" ? "#fff" : "black"}
+                  style={styles.chatMessageText}>
+                  {item.text}
+                </ThemedText>
+              </View>
+            )}
+            contentContainerStyle={styles.chatMessages}
+          />
+
+          <View style={styles.chatInputContainer}>
+            <TextInput
+              style={styles.chatInput}
+              placeholder="Escribe un mensaje..."
+              placeholderTextColor={COLORS.gray}
+              value={chatInput}
+              onChangeText={setChatInput}
+              multiline
+            />
+            <TouchableOpacity
+              style={[styles.sendButton, { opacity: chatInput.trim() ? 1 : 0.5 }]}
+              onPress={handleSendChatMessage}
+              disabled={!chatInput.trim()}>
+              <Ionicons name="send" size={20} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Call Confirmation Modal */}
+      <Modal
+        visible={showCallModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowCallModal(false)}>
+        <View style={styles.callModalOverlay}>
+          <View style={styles.callModalContent}>
+            <View style={styles.callIcon}>
+              <Ionicons name="call" size={60} color={COLORS.primary} />
+            </View>
+            <ThemedText size={20} weight="bold" color="black" style={styles.callTitle}>
+              Llamar a Pasajero
+            </ThemedText>
+            <ThemedText size={14} color={COLORS.gray} style={styles.callMessage}>
+              ¿Deseas llamar a Juan Pérez?
+            </ThemedText>
+            <View style={styles.callActions}>
+              <TouchableOpacity
+                style={[styles.callButton, { backgroundColor: COLORS.gray }]}
+                onPress={() => setShowCallModal(false)}>
+                <ThemedText color="#fff" weight="bold" size={14}>
+                  Cancelar
+                </ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.callButton, { backgroundColor: COLORS.primary }]}
+                onPress={handleConfirmCall}>
+                <Ionicons name="call" size={18} color="#fff" />
+                <ThemedText color="#fff" weight="bold" size={14}>
+                  Llamar
+                </ThemedText>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Route Modal */}
+      <Modal
+        visible={showRouteModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowRouteModal(false)}>
+        <View style={styles.tripDetailsContainer}>
+          <View style={styles.tripDetailsHeader}>
+            <TouchableOpacity onPress={() => setShowRouteModal(false)}>
+              <Ionicons name="close" size={28} color="black" />
+            </TouchableOpacity>
+            <ThemedText size={18} weight="bold" color="black">
+              Ruta del Viaje
+            </ThemedText>
+            <View style={{ width: 28 }} />
+          </View>
+
+          <ScrollView style={styles.tripDetailsContent} showsVerticalScrollIndicator={false}>
+            {/* Map Placeholder */}
+            <View style={styles.mapContainer}>
+              <View style={styles.mapPlaceholder}>
+                <Ionicons name="map" size={60} color={COLORS.gray} />
+                <ThemedText size={14} color={COLORS.gray} style={{ marginTop: 8 }}>
+                  Ruta: Cra 7 No. 23-45 → Av. Paseo 100 No. 50
+                </ThemedText>
+              </View>
+            </View>
+
+            {/* Route Details */}
+            <View style={styles.detailsSection}>
+              <ThemedText size={16} weight="bold" color="black" style={{ marginBottom: 12 }}>
+                Ruta
+              </ThemedText>
+              <View style={styles.routeItem}>
+                <View style={styles.routeMarker}>
+                  <Ionicons name="location" size={20} color={COLORS.success} />
+                </View>
+                <View style={styles.routeInfo}>
+                  <ThemedText size={12} color={COLORS.gray}>
+                    Origen
+                  </ThemedText>
+                  <ThemedText size={14} weight="bold" color="black">
+                    Cra 7 No. 23-45
+                  </ThemedText>
+                </View>
+              </View>
+
+              <View style={styles.routeLine} />
+
+              <View style={styles.routeItem}>
+                <View style={styles.routeMarker}>
+                  <Ionicons name="flag" size={20} color={COLORS.error} />
+                </View>
+                <View style={styles.routeInfo}>
+                  <ThemedText size={12} color={COLORS.gray}>
+                    Destino
+                  </ThemedText>
+                  <ThemedText size={14} weight="bold" color="black">
+                    Av. Paseo 100 No. 50
+                  </ThemedText>
+                </View>
+              </View>
+            </View>
+
+            {/* Trip Info */}
+            <View style={styles.detailsSection}>
+              <ThemedText size={16} weight="bold" color="black" style={{ marginBottom: 12 }}>
+                Información de la Ruta
+              </ThemedText>
+              <View style={styles.infoRow}>
+                <Ionicons name="time" size={20} color={COLORS.primary} />
+                <View style={styles.infoContent}>
+                  <ThemedText size={12} color={COLORS.gray}>
+                    Duración Estimada
+                  </ThemedText>
+                  <ThemedText size={14} weight="bold" color="black">
+                    12 minutos
+                  </ThemedText>
+                </View>
+              </View>
+              <View style={styles.infoRow}>
+                <Ionicons name="navigate" size={20} color={COLORS.primary} />
+                <View style={styles.infoContent}>
+                  <ThemedText size={12} color={COLORS.gray}>
+                    Distancia
+                  </ThemedText>
+                  <ThemedText size={14} weight="bold" color="black">
+                    4.5 km
+                  </ThemedText>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
+
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <View style={[styles.statIcon, { backgroundColor: COLORS.primary }]}>
@@ -552,28 +796,28 @@ export default function DriverHomeScreen() {
           Acciones Rápidas
         </ThemedText>
         <View style={styles.actionsGrid}>
-          <TouchableOpacity style={styles.actionCard}>
+          <TouchableOpacity style={styles.actionCard} onPress={handleCallPassenger}>
             <Ionicons name="call" size={32} color={COLORS.primary} />
             <ThemedText size={12} weight="bold" color="black">
               Llamar
             </ThemedText>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionCard}>
+          <TouchableOpacity style={styles.actionCard} onPress={handleSendMessage}>
             <Ionicons name="mail" size={32} color={COLORS.success} />
             <ThemedText size={12} weight="bold" color="black">
               Mensaje
             </ThemedText>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionCard}>
+          <TouchableOpacity style={styles.actionCard} onPress={handleOpenRoute}>
             <Ionicons name="map" size={32} color={COLORS.warning} />
             <ThemedText size={12} weight="bold" color="black">
               Ruta
             </ThemedText>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionCard}>
+          <TouchableOpacity style={styles.actionCard} onPress={handleSupport}>
             <Ionicons name="information-circle" size={32} color={COLORS.secondary} />
             <ThemedText size={12} weight="bold" color="black">
               Soporte
@@ -936,5 +1180,119 @@ const styles = StyleSheet.create({
     width: 1,
     height: 40,
     backgroundColor: COLORS.lightGray,
+  },
+  chatContainer: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    paddingTop: SPACING.xl,
+  },
+  chatHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
+  },
+  chatHeaderInfo: {
+    flex: 1,
+    alignItems: "center",
+  },
+  chatMessages: {
+    flexGrow: 1,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md,
+    justifyContent: "flex-end",
+  },
+  chatMessage: {
+    maxWidth: "80%",
+    marginVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.lg,
+  },
+  driverMessage: {
+    alignSelf: "flex-end",
+    backgroundColor: COLORS.primary,
+  },
+  passengerMessage: {
+    alignSelf: "flex-start",
+    backgroundColor: COLORS.background,
+  },
+  chatMessageText: {
+    lineHeight: 20,
+  },
+  chatInputContainer: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.lightGray,
+    gap: SPACING.sm,
+  },
+  chatInput: {
+    flex: 1,
+    maxHeight: 100,
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    color: "black",
+    fontSize: 14,
+  },
+  sendButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  callModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: SPACING.md,
+  },
+  callModalContent: {
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.xl,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.xl,
+    alignItems: "center",
+    width: "100%",
+  },
+  callIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: COLORS.background,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: SPACING.lg,
+  },
+  callTitle: {
+    marginBottom: SPACING.md,
+    textAlign: "center",
+  },
+  callMessage: {
+    marginBottom: SPACING.xl,
+    textAlign: "center",
+  },
+  callActions: {
+    width: "100%",
+    gap: SPACING.md,
+    marginTop: SPACING.lg,
+  },
+  callButton: {
+    flexDirection: "row",
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.lg,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: SPACING.sm,
   },
 });
