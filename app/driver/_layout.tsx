@@ -1,45 +1,32 @@
-import { Tabs } from 'expo-router';
+import { Stack } from 'expo-router';
 import React from 'react';
-
-import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../../constants/Colors';
 
 export default function DriverLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.gray,
-        tabBarLabelStyle: { fontSize: 12 },
-        tabBarStyle: {
-          backgroundColor: COLORS.white,
-          borderTopColor: COLORS.lightGray,
-          height: 65,
-          paddingBottom: 8,
-        },
-      }}>
-      <Tabs.Screen
-        name="index"
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="edit-profile"
         options={{
-          title: 'Inicio',
-          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={22} color={color} />,
+          headerShown: false,
+          presentation: 'modal',
         }}
       />
-      <Tabs.Screen
-        name="trips"
+      <Stack.Screen
+        name="payment-methods"
         options={{
-          title: 'Viajes',
-          tabBarIcon: ({ color }) => <Ionicons name="car-outline" size={22} color={color} />,
+          headerShown: false,
+          presentation: 'modal',
         }}
       />
-      <Tabs.Screen
-        name="profile"
+      <Stack.Screen
+        name="faq"
         options={{
-          title: 'Perfil',
-          tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={22} color={color} />,
+          headerShown: false,
+          presentation: 'modal',
         }}
       />
-    </Tabs>
+    </Stack>
   );
 }
+
