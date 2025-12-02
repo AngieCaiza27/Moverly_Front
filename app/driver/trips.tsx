@@ -190,7 +190,7 @@ export default function DriverTripsScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <ThemedText size={28} weight="bold">
+        <ThemedText size={28} weight="bold" color="black">
           Viajes
         </ThemedText>
       </View>
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: SPACING.md,
-    paddingTop: SPACING.md,
+    paddingTop: SPACING.xl,
     paddingBottom: SPACING.md,
   },
   tabContainer: {

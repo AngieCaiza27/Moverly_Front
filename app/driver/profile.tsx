@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   profileHeader: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.lg,
-    paddingTop: SPACING.lg,
+    paddingTop: SPACING.xl,
     flexDirection: "row",
     alignItems: "center",
     gap: SPACING.md,
