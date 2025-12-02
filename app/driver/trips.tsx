@@ -109,7 +109,7 @@ export default function DriverTripsScreen() {
           </ThemedText>
         </View>
         {activeTab === "available" && (
-          <View style={[styles.fareBadge, { backgroundColor: COLORS.primary }]}>
+          <View style={[styles.fareBadge, { backgroundColor: COLORS.info }]}>
             <ThemedText color="#fff" weight="bold" size={16}>
               {item.fare}
             </ThemedText>
@@ -120,13 +120,13 @@ export default function DriverTripsScreen() {
       {/* Route */}
       <View style={styles.routeSection}>
         <View style={styles.routeMarkers}>
-          <View style={[styles.marker, { backgroundColor: COLORS.primary }]}>
+          <View style={[styles.marker, { backgroundColor: COLORS.info }]}>
             <ThemedText color="#fff" weight="bold" size={12}>
               A
             </ThemedText>
           </View>
           <View style={styles.routeLine} />
-          <View style={[styles.marker, { backgroundColor: COLORS.primary }]}>
+          <View style={[styles.marker, { backgroundColor: COLORS.info }]}>
             <ThemedText color="#fff" weight="bold" size={12}>
               B
             </ThemedText>
@@ -145,14 +145,14 @@ export default function DriverTripsScreen() {
       {/* Trip Info */}
       <View style={styles.tripInfo}>
         <View style={styles.infoItem}>
-          <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
+          <Ionicons name="arrow-forward" size={16} color={COLORS.info} />
           <ThemedText size={12} weight="bold" color="black">
             {item.distance}
           </ThemedText>
         </View>
         <View style={styles.infoDivider} />
         <View style={styles.infoItem}>
-          <Ionicons name="time" size={16} color={COLORS.primary} />
+          <Ionicons name="time" size={16} color={COLORS.info} />
           <ThemedText size={12} weight="bold" color="black">
             {item.estimatedTime}
           </ThemedText>
@@ -163,12 +163,12 @@ export default function DriverTripsScreen() {
       {activeTab === "available" ? (
         <View style={styles.actionsContainer}>
           <TouchableOpacity
-            style={[styles.actionButtonSecondary, { borderColor: COLORS.primary }]}>
-            <ThemedText size={13} weight="bold" color={COLORS.primary}>
+            style={[styles.actionButtonSecondary, { borderColor: COLORS.error }]}>
+            <ThemedText size={13} weight="bold" color={COLORS.error}>
               Rechazar
             </ThemedText>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButtonPrimary, { backgroundColor: COLORS.primary }]}>
+          <TouchableOpacity style={[styles.actionButtonPrimary, { backgroundColor: COLORS.success }]}>
             <Ionicons name="checkmark" size={18} color="#fff" />
             <ThemedText color="#fff" weight="bold" size={13}>
               Aceptar
@@ -200,18 +200,18 @@ export default function DriverTripsScreen() {
         <TouchableOpacity
           style={[
             styles.tabButton,
-            activeTab === "available" && [styles.tabButtonActive, { borderBottomColor: COLORS.primary }],
+            activeTab === "available" && [styles.tabButtonActive, { borderBottomColor: COLORS.info }],
           ]}
           onPress={() => setActiveTab("available")}>
           <Ionicons
             name="send"
             size={18}
-            color={activeTab === "available" ? COLORS.primary : COLORS.gray}
+            color={activeTab === "available" ? COLORS.info : COLORS.gray}
           />
           <ThemedText
             size={14}
             weight={activeTab === "available" ? "bold" : "regular"}
-            color={activeTab === "available" ? COLORS.primary : COLORS.gray}>
+            color={activeTab === "available" ? COLORS.info : COLORS.gray}>
             Disponibles
           </ThemedText>
         </TouchableOpacity>
@@ -219,18 +219,18 @@ export default function DriverTripsScreen() {
         <TouchableOpacity
           style={[
             styles.tabButton,
-            activeTab === "completed" && [styles.tabButtonActive, { borderBottomColor: COLORS.primary }],
+            activeTab === "completed" && [styles.tabButtonActive, { borderBottomColor: COLORS.info }],
           ]}
           onPress={() => setActiveTab("completed")}>
           <Ionicons
             name="checkmark-circle"
             size={18}
-            color={activeTab === "completed" ? COLORS.primary : COLORS.gray}
+            color={activeTab === "completed" ? COLORS.info : COLORS.gray}
           />
           <ThemedText
             size={14}
             weight={activeTab === "completed" ? "bold" : "regular"}
-            color={activeTab === "completed" ? COLORS.primary : COLORS.gray}>
+            color={activeTab === "completed" ? COLORS.info : COLORS.gray}>
             Completados
           </ThemedText>
         </TouchableOpacity>
