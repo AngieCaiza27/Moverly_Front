@@ -1,11 +1,12 @@
-import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { useForm } from "react-hook-form";
+import { Ionicons } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useForm } from "react-hook-form";
+import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import * as yup from "yup";
-import { useRouter } from "expo-router";
 
-import FormInput from "../components/ui/FormInput";
 import Button from "../components/ui/Button";
+import FormInput from "../components/ui/FormInput";
 import ThemedText from "../components/ui/themed-text";
 import { COLORS } from "../constants/Colors";
 
@@ -25,35 +26,51 @@ const schema = yup.object({
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { type } = useLocalSearchParams();
+  const userType = (type as "user" | "driver") || "user";
 
   const { control, handleSubmit } = useForm({
     defaultValues: { name: "", email: "", password: "", confirm: "" },
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = () => {
-    // Aquí luego conectamos API
-    router.replace("/login");
+  const onSubmit = (data: any) => {
+    if (userType === "driver") {
+      // Para conductores, guardar datos y pasar a documentos
+      router.push("/register-documents");
+    } else {
+      // Para clientes, ir al login
+      router.replace("/login");
+    }
   };
 
   return (
     <View style={styles.container}>
+      {/* Back Button */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => router.back()}
+      >
+        <Ionicons name="chevron-back" size={28} color={COLORS.primary} />
+      </TouchableOpacity>
+
       {/* Logo + Título */}
-      <View style={{ alignItems: "center", marginBottom: 32 }}>
+      <View style={{ alignItems: "center", marginBottom: 24, marginTop: 10 }}>
         <Image
           source={require("../assets/images/logo.png")}
-          style={{ width: 220, height: 220, borderRadius: 20 }}
+          style={{ width: 180, height: 180, borderRadius: 20 }}
         />
-        {/* 🔸 Texto principal */}
         <ThemedText
-          size={34}
+          size={32}
           weight="bold"
           style={[styles.title, { color: COLORS.primary }]}
         >
           Crear Cuenta
         </ThemedText>
-        <ThemedText style={{ color: "#7A8A93" }}>
-          ¡Es rápido y fácil!
+        <ThemedText style={{ color: "#A0AABA", marginTop: 4 }}>
+          {userType === "driver"
+            ? "Regístrate como Conductor"
+            : "Regístrate como Cliente"}
         </ThemedText>
       </View>
 
@@ -89,8 +106,10 @@ export default function RegisterScreen() {
       />
 
       {/* Botón */}
-      <Button title="Crear cuenta" onPress={handleSubmit(onSubmit)}
-       />
+      <Button 
+        title={userType === "driver" ? "Siguiente" : "Crear cuenta"} 
+        onPress={handleSubmit(onSubmit)}
+      />
 
       <TouchableOpacity
         onPress={() => router.push("/login")}
@@ -108,9 +127,18 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.fondo,
+    backgroundColor: "#09295d",
     padding: 20,
     justifyContent: "center",
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "flex-start",
   },
   title: {
     marginTop: 8,

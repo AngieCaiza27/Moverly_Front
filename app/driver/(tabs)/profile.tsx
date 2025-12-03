@@ -240,18 +240,6 @@ export default function DriverProfileScreen() {
 
         <TouchableOpacity 
           style={styles.settingItem}
-          onPress={() => router.push("/driver/notifications")}>
-          <View style={styles.settingIcon}>
-            <Ionicons name="notifications" size={20} color={COLORS.info} />
-          </View>
-          <ThemedText size={14} weight="bold" color="black" style={styles.settingText}>
-            Notificaciones
-          </ThemedText>
-          <Ionicons name="chevron-forward" size={16} color={COLORS.gray} />
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.settingItem}
           onPress={() => router.push("/driver/faq")}>
           <View style={styles.settingIcon}>
             <Ionicons name="help-circle" size={20} color={COLORS.info} />
