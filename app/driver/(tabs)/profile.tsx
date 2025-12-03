@@ -1,19 +1,73 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { Alert, Image, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import ThemedText from "../../../components/ui/themed-text";
 import { COLORS, RADIUS, SPACING } from "../../../constants/Colors";
 
 export default function DriverProfileScreen() {
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  const handleSelectImageSource = async (source: "camera" | "gallery") => {
+    setShowImageModal(false);
+    
+    try {
+      let result;
+      
+      if (source === "camera") {
+        const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
+        if (!cameraPermission.granted) {
+          Alert.alert("Permiso", "Se necesita permiso para acceder a la cámara");
+          return;
+        }
+        
+        result = await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.7,
+        });
+      } else {
+        const libraryPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!libraryPermission.granted) {
+          Alert.alert("Permiso", "Se necesita permiso para acceder a la galería");
+          return;
+        }
+        
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.7,
+        });
+      }
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setProfileImage(result.assets[0].uri);
+        Alert.alert("Éxito", "Foto de perfil actualizada");
+      }
+    } catch (error) {
+      Alert.alert("Error", "No se pudo seleccionar la imagen");
+    }
+  };
+
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Profile Header */}
       <View style={styles.profileHeader}>
         <View style={styles.profileImageContainer}>
-          <View style={[styles.profileImage, { backgroundColor: COLORS.primary }]}>
-            <Ionicons name="person" size={48} color="#fff" />
-          </View>
-          <TouchableOpacity style={styles.editImageButton}>
+          {profileImage ? (
+            <Image source={{ uri: profileImage }} style={styles.profileImage} />
+          ) : (
+            <View style={[styles.profileImage, { backgroundColor: COLORS.primary }]}>
+              <Ionicons name="person" size={48} color="#fff" />
+            </View>
+          )}
+          <TouchableOpacity 
+            style={styles.editImageButton}
+            onPress={() => setShowImageModal(true)}>
             <Ionicons name="camera" size={16} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -262,9 +316,73 @@ export default function DriverProfileScreen() {
       </TouchableOpacity>
 
       <View style={styles.spacer} />
-    </ScrollView>
-  );
-}
+      </ScrollView>
+
+      {/* Image Source Modal */}
+      <Modal
+        visible={showImageModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowImageModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <ThemedText size={18} weight="bold" color="black" style={styles.modalTitle}>
+              Cambiar Foto de Perfil
+            </ThemedText>
+
+            {/* Camera Option */}
+            <TouchableOpacity
+              style={styles.modalOption}
+              onPress={() => handleSelectImageSource("camera")}
+            >
+              <View style={[styles.modalIconContainer, { backgroundColor: `${COLORS.info}20` }]}>
+                <Ionicons name="camera" size={28} color={COLORS.info} />
+              </View>
+              <View style={styles.modalOptionText}>
+                <ThemedText size={16} weight="bold" color="black">
+                  Tomar Foto
+                </ThemedText>
+                <ThemedText size={12} color={COLORS.gray}>
+                  Usar la cámara del dispositivo
+                </ThemedText>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={COLORS.gray} />
+            </TouchableOpacity>
+
+            {/* Gallery Option */}
+            <TouchableOpacity
+              style={styles.modalOption}
+              onPress={() => handleSelectImageSource("gallery")}
+            >
+              <View style={[styles.modalIconContainer, { backgroundColor: `${COLORS.success}20` }]}>
+                <Ionicons name="images" size={28} color={COLORS.success} />
+              </View>
+              <View style={styles.modalOptionText}>
+                <ThemedText size={16} weight="bold" color="black">
+                  Galería de Fotos
+                </ThemedText>
+                <ThemedText size={12} color={COLORS.gray}>
+                  Seleccionar de la galería
+                </ThemedText>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={COLORS.gray} />
+            </TouchableOpacity>
+
+            {/* Cancel Button */}
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setShowImageModal(false)}
+            >
+              <ThemedText size={16} weight="bold" color={COLORS.primary}>
+                Cancelar
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );}
 
 const styles = StyleSheet.create({
   container: {
@@ -451,5 +569,52 @@ const styles = StyleSheet.create({
   },
   spacer: {
     height: SPACING.lg,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: COLORS.background,
+    borderTopLeftRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xl,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.lg,
+    paddingBottom: SPACING.lg,
+  },
+  modalTitle: {
+    marginBottom: SPACING.lg,
+    textAlign: "center",
+  },
+  modalOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md,
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.lg,
+    marginBottom: SPACING.md,
+    gap: SPACING.md,
+  },
+  modalIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: RADIUS.md,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalOptionText: {
+    flex: 1,
+  },
+  cancelButton: {
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.lg,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+    marginTop: SPACING.sm,
   },
 });

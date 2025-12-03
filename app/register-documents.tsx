@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as DocumentPicker from "expo-document-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -16,6 +17,8 @@ interface DocumentUpload {
   name: string;
   label: string;
   fileName: string | null;
+  fileUri: string | null;
+  fileSize: number | null;
   uploaded: boolean;
 }
 
@@ -29,6 +32,8 @@ export default function RegisterDocumentsScreen() {
       name: "cedula",
       label: "Cédula de Ciudadanía",
       fileName: null,
+      fileUri: null,
+      fileSize: null,
       uploaded: false,
     },
     {
@@ -36,6 +41,8 @@ export default function RegisterDocumentsScreen() {
       name: "licencia",
       label: "Licencia de Conducir",
       fileName: null,
+      fileUri: null,
+      fileSize: null,
       uploaded: false,
     },
     {
@@ -43,6 +50,8 @@ export default function RegisterDocumentsScreen() {
       name: "cooperativa",
       label: "Certificado de Cooperativa",
       fileName: null,
+      fileUri: null,
+      fileSize: null,
       uploaded: false,
     },
     {
@@ -50,43 +59,45 @@ export default function RegisterDocumentsScreen() {
       name: "antecedentes",
       label: "Antecedentes Penales",
       fileName: null,
+      fileUri: null,
+      fileSize: null,
       uploaded: false,
     },
   ]);
 
-  const handleUploadDocument = (docId: string) => {
-    const docLabel = documents.find((d) => d.id === docId)?.label;
-    
-    // Simular selección de archivo con opciones realistas
-    Alert.alert(
-      "Cargar Documento",
-      `Seleccionar PDF para: ${docLabel}`,
-      [
-        {
-          text: "Seleccionar desde dispositivo",
-          onPress: () => {
-            // Simular carga exitosa de archivo
-            const randomFileName = `${docId}_${new Date().getTime()}.pdf`;
-            setDocuments((prev) =>
-              prev.map((doc) =>
-                doc.id === docId
-                  ? {
-                      ...doc,
-                      fileName: randomFileName,
-                      uploaded: true,
-                    }
-                  : doc
-              )
-            );
-            Alert.alert("✓ Éxito", `${docLabel} cargado correctamente`);
-          },
-        },
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-      ]
-    );
+  const handleUploadDocument = async (docId: string) => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "application/pdf",
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        const fileName = asset.name || `documento_${docId}.pdf`;
+        const fileSize = asset.size || 0;
+
+        setDocuments((prev) =>
+          prev.map((doc) =>
+            doc.id === docId
+              ? {
+                  ...doc,
+                  fileName: fileName,
+                  fileUri: asset.uri,
+                  fileSize: fileSize,
+                  uploaded: true,
+                }
+              : doc
+          )
+        );
+
+        const fileSizeMB = (fileSize / 1024 / 1024).toFixed(2);
+        Alert.alert("✓ Éxito", `${fileName}\n(${fileSizeMB} MB) cargado correctamente`);
+      }
+    } catch (error) {
+      Alert.alert("Error", "No se pudo seleccionar el archivo. Intenta de nuevo.");
+      console.error(error);
+    }
   };
 
   const handleDeleteDocument = (docId: string) => {
@@ -96,6 +107,8 @@ export default function RegisterDocumentsScreen() {
           ? {
               ...doc,
               fileName: null,
+              fileUri: null,
+              fileSize: null,
               uploaded: false,
             }
           : doc
@@ -202,9 +215,16 @@ export default function RegisterDocumentsScreen() {
             {doc.fileName && (
               <View style={styles.fileInfo}>
                 <Ionicons name="document" size={16} color={COLORS.success} />
-                <ThemedText size={11} color={COLORS.success}>
-                  {doc.fileName}
-                </ThemedText>
+                <View style={styles.fileDetails}>
+                  <ThemedText size={11} color={COLORS.success} weight="bold">
+                    {doc.fileName}
+                  </ThemedText>
+                  {doc.fileSize && (
+                    <ThemedText size={10} color={COLORS.info}>
+                      {(doc.fileSize / 1024 / 1024).toFixed(2)} MB
+                    </ThemedText>
+                  )}
+                </View>
               </View>
             )}
 
@@ -360,6 +380,9 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(33, 150, 243, 0.15)",
     borderRadius: RADIUS.md,
     gap: SPACING.xs,
+  },
+  fileDetails: {
+    flex: 1,
   },
   uploadButton: {
     flexDirection: "row",
