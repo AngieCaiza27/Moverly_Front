@@ -285,6 +285,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: SPACING.md,
     marginVertical: SPACING.lg,
+    marginTop: SPACING.lg + 20,
   },
   subtitle: {
     marginTop: SPACING.sm,

@@ -1,7 +1,7 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import * as yup from "yup";
 
 import FormInput from "../components/ui/FormInput";
@@ -31,23 +31,30 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Logo + Título */}
-      <View style={{ alignItems: "center", marginBottom: 32 }}>
-        <Image
-          source={require("../assets/images/logo.png")}
-          style={{ width: 220, height: 220, borderRadius: 20 }}
-        />
-        <ThemedText
-          size={34}
-          weight="bold"
-          style={[styles.title, { color: COLORS.primary }]}
-        >
-          Moverly
-        </ThemedText>
-        <ThemedText style={{ color: "#7A8A93" }}>
-          Mudarte nunca fue tan fácil
-        </ThemedText>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Logo + Título */}
+        <View style={{ alignItems: "center", marginBottom: 32 }}>
+          <Image
+            source={require("../assets/images/logo.png")}
+            style={{ width: 220, height: 220, borderRadius: 20 }}
+          />
+          <ThemedText
+            size={34}
+            weight="bold"
+            style={[styles.title, { color: COLORS.primary }]}
+          >
+            Moverly
+          </ThemedText>
+          <ThemedText style={{ color: "#7A8A93" }}>
+            Mudarte nunca fue tan fácil
+          </ThemedText>
       </View>
 
       {/* Campos con FormInput */}
@@ -100,7 +107,8 @@ export default function LoginScreen() {
           ¿Olvidaste tu contraseña?
         </ThemedText>
       </TouchableOpacity>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -108,7 +116,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#09295d",
-    padding: 20,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    paddingTop: 60,
     justifyContent: "center",
   },
   title: {

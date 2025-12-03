@@ -15,14 +15,14 @@ export default function RegisterTypeScreen() {
     <View style={styles.container}>
       {/* Header */}
       <TouchableOpacity
-        style={styles.backButton}
+        style={[styles.backButton, { marginTop: 50 }]}
         onPress={() => router.back()}
       >
         <Ionicons name="chevron-back" size={28} color={COLORS.primary} />
       </TouchableOpacity>
 
       {/* Logo + Título */}
-      <View style={{ alignItems: "center", marginBottom: 40, marginTop: 20 }}>
+      <View style={{ alignItems: "center", marginBottom: 40, marginTop: 0 }}>
         <Image
           source={require("../assets/images/logo.png")}
           style={{ width: 180, height: 180, borderRadius: 20 }}

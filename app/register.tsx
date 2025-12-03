@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import * as yup from "yup";
 
 import Button from "../components/ui/Button";
@@ -45,17 +45,24 @@ export default function RegisterScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
       {/* Back Button */}
       <TouchableOpacity
-        style={styles.backButton}
+        style={[styles.backButton, { marginTop: 0 }]}
         onPress={() => router.back()}
       >
         <Ionicons name="chevron-back" size={28} color={COLORS.primary} />
       </TouchableOpacity>
 
       {/* Logo + Título */}
-      <View style={{ alignItems: "center", marginBottom: 24, marginTop: 10 }}>
+      <View style={{ alignItems: "center", marginBottom: 24, marginTop: 0 }}>
         <Image
           source={require("../assets/images/logo.png")}
           style={{ width: 180, height: 180, borderRadius: 20 }}
@@ -119,7 +126,8 @@ export default function RegisterScreen() {
           ¿Ya tienes cuenta? Inicia sesión
         </ThemedText>
       </TouchableOpacity>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -128,7 +136,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#09295d",
-    padding: 20,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    paddingTop: 60,
     justifyContent: "center",
   },
   backButton: {

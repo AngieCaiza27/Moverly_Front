@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import Input from "../../components/ui/Input";
 import ThemedText from "../../components/ui/themed-text";
 import { COLORS, RADIUS, SPACING } from "../../constants/Colors";
@@ -19,7 +19,11 @@ export default function EditProfileScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+    <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
@@ -103,11 +107,16 @@ export default function EditProfileScreen() {
 
       <View style={styles.spacer} />
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  scrollContainer: {
     flex: 1,
     backgroundColor: COLORS.background,
   },
@@ -117,7 +126,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.lg,
-    paddingTop: SPACING.xl,
+    paddingTop: SPACING.xl + 20,
   },
   sectionContainer: {
     paddingHorizontal: SPACING.md,
