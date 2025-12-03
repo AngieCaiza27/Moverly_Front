@@ -11,8 +11,6 @@ export default function EditProfileScreen() {
   const [email, setEmail] = useState("carlos.rodriguez@email.com");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSaveChanges = () => {
     // TODO: Implement save changes logic
@@ -73,48 +71,24 @@ export default function EditProfileScreen() {
           <ThemedText size={12} color={COLORS.gray} style={styles.inputLabel}>
             Nueva Contraseña
           </ThemedText>
-          <View style={styles.passwordInputContainer}>
-            <Input
-              placeholder="Ingresa nueva contraseña"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              style={styles.passwordInput}
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.passwordToggle}>
-              <Ionicons
-                name={showPassword ? "eye" : "eye-off"}
-                size={20}
-                color={COLORS.gray}
-              />
-            </TouchableOpacity>
-          </View>
+          <Input
+            placeholder="Ingresa nueva contraseña"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
         </View>
 
         <View style={styles.inputContainer}>
           <ThemedText size={12} color={COLORS.gray} style={styles.inputLabel}>
             Confirmar Contraseña
           </ThemedText>
-          <View style={styles.passwordInputContainer}>
-            <Input
-              placeholder="Confirma tu contraseña"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showConfirmPassword}
-              style={styles.passwordInput}
-            />
-            <TouchableOpacity
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              style={styles.passwordToggle}>
-              <Ionicons
-                name={showConfirmPassword ? "eye" : "eye-off"}
-                size={20}
-                color={COLORS.gray}
-              />
-            </TouchableOpacity>
-          </View>
+          <Input
+            placeholder="Confirma tu contraseña"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+          />
         </View>
       </View>
 
@@ -157,19 +131,6 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     marginBottom: SPACING.sm,
-  },
-  passwordInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    position: "relative",
-  },
-  passwordInput: {
-    flex: 1,
-    paddingRight: SPACING.lg,
-  },
-  passwordToggle: {
-    position: "absolute",
-    right: SPACING.md,
   },
   saveButton: {
     marginHorizontal: SPACING.md,

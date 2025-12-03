@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, FlatList, Linking, Modal, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import ThemedText from "../../../components/ui/themed-text";
@@ -77,8 +78,11 @@ export default function DriverHomeScreen() {
   };
 
   const handleSupport = () => {
-    // Navegar a página de soporte
-    Alert.alert("Centro de Soporte", "Redirigiendo a página de soporte...");
+    router.push("/driver/faq");
+  };
+
+  const handleNotifications = () => {
+    router.push("/driver/notifications");
   };
 
   const handleSendChatMessage = () => {
@@ -94,12 +98,24 @@ export default function DriverHomeScreen() {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
-        <ThemedText size={28} weight="bold" color="black" style={styles.headerTitle}>
-          Bienvenido, Chofer 👋
-        </ThemedText>
-        <ThemedText size={16} style={styles.headerSubtitle}>
-          Gestiona tus viajes y ganancias
-        </ThemedText>
+        <View>
+          <ThemedText size={28} weight="bold" color="black" style={styles.headerTitle}>
+            Bienvenido, Chofer 👋
+          </ThemedText>
+          <ThemedText size={16} style={styles.headerSubtitle}>
+            Gestiona tus viajes y ganancias
+          </ThemedText>
+        </View>
+        <TouchableOpacity 
+          style={styles.notificationButton}
+          onPress={handleNotifications}>
+          <Ionicons name="notifications" size={24} color={COLORS.primary} />
+          <View style={styles.notificationBadge}>
+            <ThemedText size={10} weight="bold" color="#fff">
+              3
+            </ThemedText>
+          </View>
+        </TouchableOpacity>
       </View>
 
       {/* Status Card */}
@@ -836,6 +852,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
   },
   header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     paddingVertical: SPACING.md,
     paddingTop: SPACING.xl,
   },
@@ -1294,5 +1313,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: SPACING.sm,
+  },
+  notificationButton: {
+    position: "relative",
+    padding: SPACING.sm,
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    backgroundColor: COLORS.error,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

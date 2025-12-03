@@ -238,7 +238,9 @@ export default function DriverProfileScreen() {
           <Ionicons name="chevron-forward" size={16} color={COLORS.gray} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.settingItem}>
+        <TouchableOpacity 
+          style={styles.settingItem}
+          onPress={() => router.push("/driver/notifications")}>
           <View style={styles.settingIcon}>
             <Ionicons name="notifications" size={20} color={COLORS.info} />
           </View>
