@@ -97,7 +97,7 @@ export default function DriverHomeScreen() {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { marginTop: 25 }]}>
         <View>
           <ThemedText size={28} weight="bold" color="black" style={styles.headerTitle}>
             Bienvenido, Chofer 👋
@@ -218,7 +218,7 @@ export default function DriverHomeScreen() {
             <ThemedText size={18} weight="bold" color="black">
               {currentModalStep === "confirm-end" ? "Confirmar" : "Detalles del Viaje"}
             </ThemedText>
-            <View style={{ width: 28 }} />
+            <View style={{ width: 28, marginTop: 80 }} />
           </View>
 
           {currentModalStep === "trip-details" && (

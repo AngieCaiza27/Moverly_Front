@@ -127,7 +127,7 @@ export default function RegisterDocumentsScreen() {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Back Button */}
       <TouchableOpacity
-        style={styles.backButton}
+        style={[styles.backButton, { marginTop: SPACING.xl + 20 }]}
         onPress={() => router.back()}
       >
         <Ionicons name="chevron-back" size={28} color={COLORS.primary} />

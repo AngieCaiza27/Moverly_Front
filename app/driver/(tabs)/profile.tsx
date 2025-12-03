@@ -18,7 +18,7 @@ export default function DriverProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.profileInfo}>
+        <View style={[styles.profileInfo, { marginTop: 30 }]}>
           <ThemedText size={20} weight="bold" color="black">
             Carlos Rodríguez
           </ThemedText>
