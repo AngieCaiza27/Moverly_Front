@@ -3,11 +3,11 @@ import * as DocumentPicker from "expo-document-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import ThemedText from "../components/ui/themed-text";
 import { COLORS, RADIUS, SPACING } from "../constants/Colors";
@@ -19,6 +19,7 @@ interface DocumentUpload {
   fileName: string | null;
   fileUri: string | null;
   fileSize: number | null;
+  required: boolean;
   uploaded: boolean;
 }
 
@@ -34,6 +35,7 @@ export default function RegisterDocumentsScreen() {
       fileName: null,
       fileUri: null,
       fileSize: null,
+      required: true,
       uploaded: false,
     },
     {
@@ -43,15 +45,17 @@ export default function RegisterDocumentsScreen() {
       fileName: null,
       fileUri: null,
       fileSize: null,
+      required: true,
       uploaded: false,
     },
     {
       id: "cooperativa",
       name: "cooperativa",
-      label: "Certificado de Cooperativa",
+      label: "Certificado de Cooperativa (Opcional)",
       fileName: null,
       fileUri: null,
       fileSize: null,
+      required: false,
       uploaded: false,
     },
     {
@@ -61,6 +65,7 @@ export default function RegisterDocumentsScreen() {
       fileName: null,
       fileUri: null,
       fileSize: null,
+      required: true,
       uploaded: false,
     },
   ]);
@@ -116,7 +121,9 @@ export default function RegisterDocumentsScreen() {
     );
   };
 
-  const allDocumentsUploaded = documents.every((doc) => doc.uploaded);
+  // Only required documents are needed to continue (cooperativa is optional)
+  const requiredDocs = documents.filter((d) => d.required);
+  const allDocumentsUploaded = requiredDocs.length === 0 ? true : requiredDocs.every((doc) => doc.uploaded);
 
   const handleContinue = () => {
     if (!allDocumentsUploaded) {
@@ -163,14 +170,18 @@ export default function RegisterDocumentsScreen() {
             style={[
               styles.progressFill,
               {
-                width: `${(documents.filter((d) => d.uploaded).length / documents.length) * 100}%`,
+                // Progress counts only required documents
+                width: `${
+                  requiredDocs.length === 0
+                    ? 100
+                    : (requiredDocs.filter((d) => d.uploaded).length / requiredDocs.length) * 100
+                }%`,
               },
             ]}
           />
         </View>
         <ThemedText size={12} color={COLORS.gray} style={styles.progressText}>
-          {documents.filter((d) => d.uploaded).length} de {documents.length}{" "}
-          documentos
+          {requiredDocs.filter((d) => d.uploaded).length} de {requiredDocs.length} documentos requeridos
         </ThemedText>
       </View>
 
