@@ -8,9 +8,10 @@ import {
   Image,
   Modal,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import ThemedText from "../../components/ui/themed-text";
-import { COLORS, SPACING, RADIUS } from "../../constants/Colors";
+import { COLORS, SPACING, RADIUS, SHADOWS } from "../../constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -22,57 +23,62 @@ export default function QuotesScreen() {
   const [fecha, setFecha] = useState<Date | null>(null);
   const [hora, setHora] = useState<Date | null>(null);
   const [precio, setPrecio] = useState(0);
-  const [showCompanies, setShowCompanies] = useState(false);
   const [showMap, setShowMap] = useState<"origen" | "destino" | null>(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState<number | null>(null);
+  const [assignedDriver, setAssignedDriver] = useState<any>(null);
 
   // Configura el precio según el vehículo
   useEffect(() => {
     switch (vehicle) {
       case "Camioneta":
-        setPrecio(35);
+        setPrecio(2850);
         break;
       case "Camión":
-        setPrecio(60);
+        setPrecio(3500);
         break;
       case "Tráiler":
-        setPrecio(90);
+        setPrecio(4800);
         break;
       default:
         setPrecio(0);
     }
   }, [vehicle]);
 
-  // Mock de compañías disponibles
-  const companies = [
+  // Mock de choferes disponibles
+  const drivers = [
     {
       id: 1,
-      name: "Mudanzas Águila",
-      rating: 4.8,
-      reviews: 156,
-      price: 2850,
-      logo: "https://img.freepik.com/vector-premium/inspiracion-plantilla-vectorial-diseno-logotipo-realtor-store_139372-1131.jpg?semt=ais_hybrid&w=740&q=80",
-      time: "2-3 horas",
+      name: "Carlos Méndez",
+      rating: 4.9,
+      trips: 342,
+      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      phone: "+593 99 123 4567",
+      vehicle: "Camioneta Toyota",
+      plate: "ABC-1234",
+      experience: "8 años",
     },
     {
       id: 2,
-      name: "Transporte Andino",
-      rating: 4.6,
-      reviews: 121,
-      price: 2950,
-      logo: "https://img.freepik.com/vector-premium/diseno-logotipo-hermoso-unico-empresas-comercio-electronico-minorista_1253202-242279.jpg?semt=ais_hybrid&w=740&q=80",
-      time: "3-4 horas",
+      name: "Miguel Ruiz",
+      rating: 4.7,
+      trips: 278,
+      avatar: "https://randomuser.me/api/portraits/men/45.jpg",
+      phone: "+593 98 765 4321",
+      vehicle: "Camión Chevrolet",
+      plate: "XYZ-5678",
+      experience: "6 años",
     },
     {
       id: 3,
-      name: "Full Move S.A.",
-      rating: 4.9,
-      reviews: 98,
-      price: 3100,
-      logo: "https://uploads.turbologo.com/uploads/design/preview_image/757785/preview_image20210713-19572-3hnxyo.png",
-      time: "2 horas",
+      name: "Luis Paredes",
+      rating: 4.8,
+      trips: 195,
+      avatar: "https://randomuser.me/api/portraits/men/68.jpg",
+      phone: "+593 97 456 7890",
+      vehicle: "Tráiler Freightliner",
+      plate: "LMN-9012",
+      experience: "10 años",
     },
   ];
 
@@ -80,9 +86,9 @@ export default function QuotesScreen() {
   const handleConfirmDate = (selectedDate: Date) => {
     setFecha(selectedDate);
     setDatePickerVisibility(false);
-    // Al elegir fecha, abrimos hora automáticamente
     setTimeout(() => setTimePickerVisibility(true), 300);
   };
+  
   const handleConfirmTime = (selectedTime: Date) => {
     setHora(selectedTime);
     setTimePickerVisibility(false);
@@ -93,94 +99,218 @@ export default function QuotesScreen() {
   const formatHora = (d: Date | null) =>
     d ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
 
+  const handleConfirmQuote = () => {
+    if (!origen || !destino || !fecha || !hora) {
+      Alert.alert("Datos incompletos", "Por favor completa todos los campos antes de continuar.");
+      return;
+    }
+    
+    // Asignar chofer automáticamente (simulación)
+    const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
+    setAssignedDriver(randomDriver);
+  };
+
+  const handleConfirmDriver = () => {
+    if (!assignedDriver) return;
+    
+    Alert.alert(
+      "Mudanza confirmada",
+      `Tu mudanza ha sido asignada a ${assignedDriver.name}. Te contactará pronto.`,
+      [
+        {
+          text: "Ver mi viaje",
+          onPress: () => router.push({
+            pathname: "/(tabs)/moves",
+            params: {
+              driver: JSON.stringify(assignedDriver),
+              origen,
+              destino,
+              fecha: fecha?.toISOString(),
+              hora: hora?.toISOString(),
+              precio: precio.toString(),
+              vehicle: vehicle as string,
+            }
+          }),
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={styles.scrollContent}
       >
-        {!showCompanies ? (
+        {!assignedDriver ? (
           <>
-            {/* ---------- ENCABEZADO ---------- */}
-            <ThemedText size={26} weight="bold" style={styles.title}>
-              Cotización de mudanza
-            </ThemedText>
-
-            <View style={styles.vehicleCard}>
-              <Ionicons
-                name={
-                  vehicle === "Camioneta"
-                    ? "car-outline"
-                    : vehicle === "Camión"
-                    ? "bus-outline"
-                    : "trail-sign-outline"
-                }
-                size={42}
-                color={COLORS.white2}
-              />
-              <ThemedText weight="bold" size={18} style={styles.title2}>
-                {vehicle || "Selecciona un vehículo"}
+            {/* Encabezado */}
+            <View style={styles.headerContainer}>
+              <View style={styles.headerIconContainer}>
+                <Ionicons name="cube" size={32} color={COLORS.primary} />
+              </View>
+              <ThemedText size={28} weight="bold" style={styles.title}>
+                Nueva Mudanza
+              </ThemedText>
+              <ThemedText size={14} color={COLORS.textSecondary} style={{ textAlign: "center", marginTop: 4 }}>
+                Completa los datos para asignar un chofer
               </ThemedText>
             </View>
 
-            {/* ---------- FORMULARIO ---------- */}
-            <ThemedText weight="bold" size={16} style={styles.sectionTitle}>
-              Detalles de tu mudanza
-            </ThemedText>
+            {/* Tarjeta de vehículo */}
+            <View style={styles.vehicleCard}>
+              <View style={styles.vehicleIconWrapper}>
+                <Ionicons
+                  name={
+                    vehicle === "Camioneta"
+                      ? "car"
+                      : vehicle === "Camión"
+                        ? "bus"
+                        : "trail-sign"
+                  }
+                  size={36}
+                  color={COLORS.white2}
+                />
+              </View>
+              <View style={{ flex: 1, marginLeft: SPACING.md }}>
+                <ThemedText weight="bold" size={18} color={COLORS.text}>
+                  {vehicle || "Vehículo seleccionado"}
+                </ThemedText>
+                <ThemedText size={13} color={COLORS.textSecondary} style={{ marginTop: 2 }}>
+                  {vehicle === "Camioneta" ? "Ideal para mudanzas pequeñas" : 
+                   vehicle === "Camión" ? "Para mudanzas medianas" : 
+                   "Para mudanzas grandes"}
+                </ThemedText>
+              </View>
+              <View style={styles.priceBadge}>
+                <ThemedText size={12} color={COLORS.primary} weight="bold">
+                  ${precio}
+                </ThemedText>
+              </View>
+            </View>
+
+            {/* Sección de ruta */}
+            <View style={styles.sectionHeader}>
+              <Ionicons name="map" size={22} color={COLORS.primary} />
+              <ThemedText weight="bold" size={18} style={{ marginLeft: 8, color: COLORS.text }}>
+                Ruta de mudanza
+              </ThemedText>
+            </View>
 
             {/* Origen */}
-            <TouchableOpacity onPress={() => setShowMap("origen")}>
-              <InputField
-                icon="pin-outline"
-                placeholder={origen ? origen : "Seleccionar origen"}
-                editable={false}
-              />
+            <TouchableOpacity onPress={() => setShowMap("origen")} activeOpacity={0.7}>
+              <View style={styles.inputCard}>
+                <View style={[styles.inputIconContainer, { backgroundColor: COLORS.primary + '15' }]}>
+                  <Ionicons name="location" size={22} color={COLORS.primary} />
+                </View>
+                <View style={{ flex: 1, marginLeft: SPACING.md }}>
+                  <ThemedText size={12} color={COLORS.textSecondary} weight="bold">
+                    ORIGEN
+                  </ThemedText>
+                  <ThemedText size={15} color={COLORS.text} style={{ marginTop: 4 }}>
+                    {origen || "Seleccionar punto de partida"}
+                  </ThemedText>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+              </View>
             </TouchableOpacity>
 
             {/* Destino */}
-            <TouchableOpacity onPress={() => setShowMap("destino")}>
-              <InputField
-                icon="navigate-outline"
-                placeholder={destino ? destino : "Seleccionar destino"}
-                editable={false}
-              />
+            <TouchableOpacity onPress={() => setShowMap("destino")} activeOpacity={0.7}>
+              <View style={styles.inputCard}>
+                <View style={[styles.inputIconContainer, { backgroundColor: COLORS.secondary + '15' }]}>
+                  <Ionicons name="navigate" size={22} color={COLORS.secondary} />
+                </View>
+                <View style={{ flex: 1, marginLeft: SPACING.md }}>
+                  <ThemedText size={12} color={COLORS.textSecondary} weight="bold">
+                    DESTINO
+                  </ThemedText>
+                  <ThemedText size={15} color={COLORS.text} style={{ marginTop: 4 }}>
+                    {destino || "Seleccionar punto de llegada"}
+                  </ThemedText>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+              </View>
             </TouchableOpacity>
 
-            {/* Fecha */}
-            <TouchableOpacity onPress={() => setDatePickerVisibility(true)}>
-              <InputField
-                icon="calendar-outline"
-                placeholder={fecha ? formatFecha(fecha) : "Seleccionar fecha"}
-                editable={false}
-              />
-            </TouchableOpacity>
-
-            {/* Hora */}
-            <TouchableOpacity onPress={() => setTimePickerVisibility(true)}>
-              <InputField
-                icon="time-outline"
-                placeholder={hora ? formatHora(hora) : "Seleccionar hora"}
-                editable={false}
-              />
-            </TouchableOpacity>
-
-            {/* Precio estimado */}
-            <View style={styles.priceBox}>
-              <ThemedText weight="bold" size={18} style={{ color: COLORS.text }}>
-                Precio estimado:
+            {/* Sección de horario */}
+            <View style={styles.sectionHeader}>
+              <Ionicons name="time" size={22} color={COLORS.primary} />
+              <ThemedText weight="bold" size={18} style={{ marginLeft: 8, color: COLORS.text }}>
+                Fecha y hora
               </ThemedText>
-              <ThemedText size={22} weight="bold" style={{ color: COLORS.primary }}>
-                ${precio.toFixed(2)}
-              </ThemedText>
+            </View>
+
+            <View style={styles.dateTimeRow}>
+              {/* Fecha */}
+              <TouchableOpacity 
+                style={styles.dateTimeCard} 
+                onPress={() => setDatePickerVisibility(true)}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.inputIconContainer, { backgroundColor: COLORS.accent + '15' }]}>
+                  <Ionicons name="calendar" size={20} color={COLORS.accent} />
+                </View>
+                <View style={{ flex: 1, marginLeft: SPACING.sm }}>
+                  <ThemedText size={11} color={COLORS.textSecondary} weight="bold">
+                    FECHA
+                  </ThemedText>
+                  <ThemedText size={13} color={COLORS.text} style={{ marginTop: 2 }}>
+                    {fecha ? formatFecha(fecha) : "Seleccionar"}
+                  </ThemedText>
+                </View>
+              </TouchableOpacity>
+
+              {/* Hora */}
+              <TouchableOpacity 
+                style={styles.dateTimeCard} 
+                onPress={() => setTimePickerVisibility(true)}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.inputIconContainer, { backgroundColor: COLORS.accent + '15' }]}>
+                  <Ionicons name="time" size={20} color={COLORS.accent} />
+                </View>
+                <View style={{ flex: 1, marginLeft: SPACING.sm }}>
+                  <ThemedText size={11} color={COLORS.textSecondary} weight="bold">
+                    HORA
+                  </ThemedText>
+                  <ThemedText size={13} color={COLORS.text} style={{ marginTop: 2 }}>
+                    {hora ? formatHora(hora) : "Seleccionar"}
+                  </ThemedText>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            {/* Resumen de precio */}
+            <View style={styles.priceCard}>
+              <View style={{ flex: 1 }}>
+                <ThemedText size={14} color={COLORS.textSecondary}>
+                  Precio estimado
+                </ThemedText>
+                <ThemedText size={13} color={COLORS.textSecondary} style={{ marginTop: 2 }}>
+                  Incluye seguro y ayudantes
+                </ThemedText>
+              </View>
+              <View style={{ alignItems: "flex-end" }}>
+                <ThemedText size={28} weight="bold" color={COLORS.primary}>
+                  ${precio}
+                </ThemedText>
+                <ThemedText size={12} color={COLORS.textSecondary}>
+                  USD
+                </ThemedText>
+              </View>
             </View>
 
             {/* Botón principal */}
             <TouchableOpacity
-              style={[styles.confirmButton, { marginBottom: 40 }]}
-              onPress={() => setShowCompanies(true)}
+              style={styles.confirmButton}
+              onPress={handleConfirmQuote}
+              activeOpacity={0.8}
             >
-              <ThemedText style={styles.confirmText}>Confirmar cotización</ThemedText>
+              <Ionicons name="checkmark-circle" size={24} color={COLORS.white2} style={{ marginRight: 8 }} />
+              <ThemedText style={styles.confirmText}>Buscar chofer disponible</ThemedText>
+              <Ionicons name="arrow-forward" size={24} color={COLORS.white2} style={{ marginLeft: 8 }} />
             </TouchableOpacity>
 
             {/* ---------- MODAL MAPA ---------- */}
@@ -229,170 +359,499 @@ export default function QuotesScreen() {
               is24Hour
             />
           </>
-        ) : (
+        ) : assignedDriver ? (
           <>
-            {/* ---------- LISTA DE COMPAÑÍAS ---------- */}
-            <ThemedText size={26} weight="bold" style={styles.title}>
-              Compañías disponibles
-            </ThemedText>
-            <ThemedText size={14} color={COLORS.gray} style={{ marginBottom: 10, textAlign: "center" }}>
-              {origen} → {destino} {"\n"}
-              {fecha ? formatFecha(fecha) : ""} · {hora ? formatHora(hora) : ""} · {vehicle}
-            </ThemedText>
+            {/* Chofer asignado */}
+            <View style={styles.successHeader}>
+              <View style={styles.successIconContainer}>
+                <Ionicons name="checkmark-circle" size={64} color={COLORS.primary} />
+              </View>
+              <ThemedText size={26} weight="bold" style={{ color: COLORS.text, textAlign: "center", marginTop: SPACING.md }}>
+                ¡Chofer asignado!
+              </ThemedText>
+              <ThemedText size={14} color={COLORS.textSecondary} style={{ textAlign: "center", marginTop: 4 }}>
+                Tu mudanza ha sido confirmada
+              </ThemedText>
+            </View>
 
-            {companies.map((c) => (
-              <TouchableOpacity
-                key={c.id}
-                style={[
-                  styles.companyCard,
-                  selectedCompany === c.id && { borderColor: COLORS.primary, borderWidth: 1.5 },
-                ]}
-                onPress={() => setSelectedCompany(c.id)}
-              >
-                <Image source={{ uri: c.logo }} style={styles.companyLogo} />
+            {/* Tarjeta del chofer */}
+            <View style={styles.driverCard}>
+              <Image 
+                source={{ uri: assignedDriver.avatar }} 
+                style={styles.driverAvatar}
+              />
+              <View style={styles.driverBadge}>
+                <Ionicons name="star" size={16} color={COLORS.accent} />
+                <ThemedText size={13} weight="bold" style={{ color: COLORS.white2, marginLeft: 4 }}>
+                  {assignedDriver.rating}
+                </ThemedText>
+              </View>
+            </View>
+
+            <View style={styles.driverInfoCard}>
+              <ThemedText size={22} weight="bold" color={COLORS.text} style={{ textAlign: "center" }}>
+                {assignedDriver.name}
+              </ThemedText>
+              <ThemedText size={14} color={COLORS.textSecondary} style={{ textAlign: "center", marginTop: 4 }}>
+                {assignedDriver.trips} viajes completados · {assignedDriver.experience} de experiencia
+              </ThemedText>
+
+              <View style={styles.driverDetailsGrid}>
+                <View style={styles.driverDetailItem}>
+                  <View style={[styles.detailIconContainer, { backgroundColor: COLORS.primary + '15' }]}>
+                    <Ionicons name="car" size={24} color={COLORS.primary} />
+                  </View>
+                  <ThemedText size={12} color={COLORS.textSecondary} style={{ marginTop: 6 }}>
+                    Vehículo
+                  </ThemedText>
+                  <ThemedText size={14} weight="bold" color={COLORS.text} style={{ marginTop: 2 }}>
+                    {assignedDriver.vehicle}
+                  </ThemedText>
+                </View>
+
+                <View style={styles.driverDetailItem}>
+                  <View style={[styles.detailIconContainer, { backgroundColor: COLORS.secondary + '15' }]}>
+                    <Ionicons name="card" size={24} color={COLORS.secondary} />
+                  </View>
+                  <ThemedText size={12} color={COLORS.textSecondary} style={{ marginTop: 6 }}>
+                    Placa
+                  </ThemedText>
+                  <ThemedText size={14} weight="bold" color={COLORS.text} style={{ marginTop: 2 }}>
+                    {assignedDriver.plate}
+                  </ThemedText>
+                </View>
+
+                <View style={styles.driverDetailItem}>
+                  <View style={[styles.detailIconContainer, { backgroundColor: COLORS.accent + '15' }]}>
+                    <Ionicons name="call" size={24} color={COLORS.accent} />
+                  </View>
+                  <ThemedText size={12} color={COLORS.textSecondary} style={{ marginTop: 6 }}>
+                    Teléfono
+                  </ThemedText>
+                  <ThemedText size={14} weight="bold" color={COLORS.text} style={{ marginTop: 2 }}>
+                    {assignedDriver.phone}
+                  </ThemedText>
+                </View>
+              </View>
+            </View>
+
+            {/* Resumen de la mudanza */}
+            <View style={styles.summaryCard}>
+              <ThemedText size={18} weight="bold" color={COLORS.text} style={{ marginBottom: SPACING.md }}>
+                Resumen de la mudanza
+              </ThemedText>
+
+              <View style={styles.summaryRow}>
+                <View style={styles.summaryIcon}>
+                  <Ionicons name="location" size={18} color={COLORS.primary} />
+                </View>
                 <View style={{ flex: 1 }}>
-                  <ThemedText weight="bold" size={16}>
-                    {c.name}
-                  </ThemedText>
-                  <ThemedText color={COLORS.gray} size={13}>
-                    ⭐ {c.rating} ({c.reviews} reseñas)
-                  </ThemedText>
-                  <View style={{ flexDirection: "row", marginTop: 4 }}>
-                    <Ionicons name="time-outline" size={15} color={COLORS.gray} />
-                    <ThemedText color={COLORS.gray} size={13} style={{ marginLeft: 4 }}>
-                      {c.time} · {vehicle}
-                    </ThemedText>
-                  </View>
-                  <View style={styles.badgeRow}>
-                    <View style={styles.badge}>
-                      <ThemedText size={12} style={{ color: COLORS.primary }}>
-                        Seguro incluido
-                      </ThemedText>
-                    </View>
-                    <View style={styles.badgeLight}>
-                      <ThemedText size={12} style={{ color: COLORS.primary }}>
-                        Disponible hoy
-                      </ThemedText>
-                    </View>
-                  </View>
+                  <ThemedText size={12} color={COLORS.textSecondary}>Origen</ThemedText>
+                  <ThemedText size={14} color={COLORS.text} style={{ marginTop: 2 }}>{origen}</ThemedText>
                 </View>
-                <View style={{ alignItems: "flex-end" }}>
-                  <ThemedText weight="bold" size={18} style={{ color: COLORS.primary }}>
-                    ${c.price}
-                  </ThemedText>
-                  <ThemedText color={COLORS.gray} size={12}>
-                    MXN
-                  </ThemedText>
-                </View>
-              </TouchableOpacity>
-            ))}
+              </View>
 
+              <View style={styles.summaryDivider} />
+
+              <View style={styles.summaryRow}>
+                <View style={styles.summaryIcon}>
+                  <Ionicons name="navigate" size={18} color={COLORS.secondary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <ThemedText size={12} color={COLORS.textSecondary}>Destino</ThemedText>
+                  <ThemedText size={14} color={COLORS.text} style={{ marginTop: 2 }}>{destino}</ThemedText>
+                </View>
+              </View>
+
+              <View style={styles.summaryDivider} />
+
+              <View style={styles.summaryRow}>
+                <View style={styles.summaryIcon}>
+                  <Ionicons name="calendar" size={18} color={COLORS.accent} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <ThemedText size={12} color={COLORS.textSecondary}>Fecha y hora</ThemedText>
+                  <ThemedText size={14} color={COLORS.text} style={{ marginTop: 2 }}>
+                    {fecha ? formatFecha(fecha) : ""} · {hora ? formatHora(hora) : ""}
+                  </ThemedText>
+                </View>
+              </View>
+
+              <View style={styles.summaryDivider} />
+
+              <View style={styles.summaryRow}>
+                <View style={styles.summaryIcon}>
+                  <Ionicons name="cash" size={18} color={COLORS.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <ThemedText size={12} color={COLORS.textSecondary}>Total a pagar</ThemedText>
+                  <ThemedText size={20} weight="bold" color={COLORS.primary} style={{ marginTop: 2 }}>
+                    ${precio} USD
+                  </ThemedText>
+                </View>
+              </View>
+            </View>
+
+            {/* Botones de acción */}
             <TouchableOpacity
-              style={[
-                styles.confirmButton,
-                { marginTop: 25, backgroundColor: COLORS.black },
-              ]}
-              onPress={() => router.push("/(tabs)/moves")}
+              style={styles.confirmButton}
+              onPress={handleConfirmDriver}
+              activeOpacity={0.8}
             >
-              <ThemedText style={styles.confirmText}>Confirmar compañía</ThemedText>
+              <Ionicons name="checkmark-done" size={24} color={COLORS.white2} style={{ marginRight: 8 }} />
+              <ThemedText style={styles.confirmText}>Confirmar mudanza</ThemedText>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.confirmButton, { marginTop: 15 }]}
-              onPress={() => setShowCompanies(false)}
+              style={styles.secondaryButton}
+              onPress={() => setAssignedDriver(null)}
+              activeOpacity={0.8}
             >
-              <ThemedText style={styles.confirmText}>Volver a editar</ThemedText>
+              <Ionicons name="arrow-back" size={20} color={COLORS.primary} style={{ marginRight: 8 }} />
+              <ThemedText style={styles.secondaryButtonText}>Editar datos</ThemedText>
             </TouchableOpacity>
           </>
-        )}
+        ) : null}
+
+        {/* Modal de mapa */}
+        <Modal visible={!!showMap} transparent animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalBox}>
+              <TouchableOpacity 
+                style={styles.modalCloseButton}
+                onPress={() => setShowMap(null)}
+              >
+                <Ionicons name="close-circle" size={32} color={COLORS.textSecondary} />
+              </TouchableOpacity>
+              
+              <Image
+                source={{
+                  uri: "https://media.canalnet.tv/2021/09/MAPS-BONDI-1-254x414.png",
+                }}
+                style={styles.mapImage}
+              />
+              
+              <View style={{ padding: SPACING.lg }}>
+                <ThemedText size={18} weight="bold" color={COLORS.text} style={{ textAlign: "center" }}>
+                  {showMap === "origen" ? "Punto de partida" : "Punto de llegada"}
+                </ThemedText>
+                <ThemedText size={14} color={COLORS.textSecondary} style={{ textAlign: "center", marginTop: 8 }}>
+                  {showMap === "origen"
+                    ? "Selecciona desde dónde comenzará tu mudanza"
+                    : "Selecciona a dónde llegará tu mudanza"}
+                </ThemedText>
+                
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => {
+                    if (showMap === "origen") setOrigen("Av. 6 de Diciembre N34-123, Quito");
+                    else setDestino("Av. República del Salvador N35-89, Quito");
+                    setShowMap(null);
+                  }}
+                >
+                  <Ionicons name="checkmark" size={24} color={COLORS.white2} />
+                  <ThemedText style={styles.modalButtonText}>Confirmar ubicación</ThemedText>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Date & Time Pickers */}
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode="date"
+          onConfirm={handleConfirmDate}
+          onCancel={() => setDatePickerVisibility(false)}
+          locale="es-ES"
+          minimumDate={new Date()}
+        />
+        <DateTimePickerModal
+          isVisible={isTimePickerVisible}
+          mode="time"
+          onConfirm={handleConfirmTime}
+          onCancel={() => setTimePickerVisibility(false)}
+          is24Hour
+        />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-/* -------- COMPONENTE INPUTFIELD -------- */
-function InputField({ icon, placeholder, editable = true }: any) {
-  return (
-    <View style={styles.inputField}>
-      <Ionicons name={icon} size={22} color={COLORS.primary} />
-      <TextInput
-        style={styles.textInput}
-        placeholder={placeholder}
-        editable={editable}
-        placeholderTextColor={COLORS.gray}
-      />
-    </View>
-  );
-}
-
 /* -------- ESTILOS -------- */
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 20, paddingTop: 40 },
-  title: {
-  marginBottom: 25,
-  color: COLORS.primary,
-  textAlign: "center",
-  marginTop: 25, // 🔹 Agrega un margen superior para bajar el título
-},
-vehicleCard: {
-  flexDirection: "row",
-  justifyContent: "center",
-  alignItems: "center", // 🔹 Centra verticalmentep
-  backgroundColor: "#09295d",
-  paddingVertical: 25, // 🔹 Aumenta el alto general
-  borderRadius: 16,
-  marginBottom: 25,
-  gap: 18, // 🔹 Separa el ícono y el texto
-},
-title2: {
-  color: COLORS.white,
-  fontSize: 20, // 🔹 Un poco más grande
-  fontWeight: "bold",
-  textAlignVertical: "center", // 🔹 Mejor alineación vertical
-},
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  scrollContent: {
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.xl,
+    paddingBottom: 120,
+  },
 
-  sectionTitle: { color: COLORS.text, marginBottom: 10 },
-  inputField: {
+  /* Header */
+  headerContainer: {
+    alignItems: "center",
+    marginBottom: SPACING.xl,
+  },
+  headerIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: COLORS.primary + '15',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.md,
+  },
+  title: {
+    color: COLORS.text,
+    textAlign: "center",
+  },
+
+  /* Vehicle Card */
+  vehicleCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 12,
+    backgroundColor: COLORS.white2,
+    padding: SPACING.lg,
+    borderRadius: RADIUS.lg,
+    marginBottom: SPACING.xl,
+    ...SHADOWS.medium,
+    borderWidth: 1,
+    borderColor: COLORS.primary + '20',
   },
-  textInput: { flex: 1, marginLeft: 10, fontSize: 16, color: "#09295d", textAlign: "center" },
-  priceBox: {
-    backgroundColor: "#f5f5f5",
-    borderRadius: 12,
-    padding: 14,
+  vehicleIconWrapper: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.small,
+  },
+  priceBadge: {
+    backgroundColor: COLORS.primary + '15',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.full,
+  },
+
+  /* Section Headers */
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: SPACING.lg,
+    marginBottom: SPACING.md,
+  },
+
+  /* Input Cards */
+  inputCard: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 15,
+    alignItems: "center",
+    backgroundColor: COLORS.white2,
+    padding: SPACING.lg,
+    borderRadius: RADIUS.lg,
+    marginBottom: SPACING.md,
+    ...SHADOWS.small,
   },
+  inputIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  /* Date Time Row */
+  dateTimeRow: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+    marginBottom: SPACING.lg,
+  },
+  dateTimeCard: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.white2,
+    padding: SPACING.md,
+    borderRadius: RADIUS.lg,
+    ...SHADOWS.small,
+  },
+
+  /* Price Card */
+  priceCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.white2,
+    padding: SPACING.lg,
+    borderRadius: RADIUS.lg,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.xl,
+    ...SHADOWS.medium,
+    borderWidth: 2,
+    borderColor: COLORS.primary + '30',
+  },
+
+  /* Buttons */
   confirmButton: {
     backgroundColor: COLORS.primary,
-    borderRadius: 14,
+    flexDirection: 'row',
+    alignItems: "center",
+    justifyContent: 'center',
+    paddingVertical: 16,
+    borderRadius: RADIUS.lg,
+    marginBottom: SPACING.md,
+    ...SHADOWS.medium,
+  },
+  confirmText: {
+    color: COLORS.white2,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  secondaryButton: {
+    backgroundColor: COLORS.white2,
+    flexDirection: 'row',
+    alignItems: "center",
+    justifyContent: 'center',
+    paddingVertical: 16,
+    borderRadius: RADIUS.lg,
+    marginBottom: SPACING.md,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+  secondaryButtonText: {
+    color: COLORS.primary,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
+  /* Modal */
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalBox: {
+    backgroundColor: COLORS.white2,
+    width: "90%",
+    borderRadius: RADIUS.lg,
+    overflow: "hidden",
+    ...SHADOWS.large,
+  },
+  modalCloseButton: {
+    position: 'absolute',
+    top: SPACING.md,
+    right: SPACING.md,
+    zIndex: 10,
+    backgroundColor: COLORS.white2,
+    borderRadius: 20,
+  },
+  mapImage: {
+    width: "100%",
+    height: 250,
+  },
+  modalButton: {
+    backgroundColor: COLORS.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: RADIUS.lg,
     paddingVertical: 14,
-    alignItems: "center",
+    marginTop: SPACING.lg,
+    ...SHADOWS.medium,
   },
-  confirmText: { color: COLORS.white, fontWeight: "bold", fontSize: 16 },
-  modalContainer: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
-  modalBox: { backgroundColor: COLORS.white, width: "85%", borderRadius: 16, padding: 16, alignItems: "center" },
-  mapImage: { width: "100%", height: 200, borderRadius: 12 },
-  modalButton: { backgroundColor: COLORS.primary, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 20, marginTop: 10 },
-  modalButtonText: { color: COLORS.white, fontWeight: "bold" },
-  companyCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.white,
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 12,
-    elevation: 2,
+  modalButtonText: {
+    color: COLORS.white2,
+    fontWeight: "bold",
+    fontSize: 16,
+    marginLeft: 8,
   },
-  companyLogo: { width: 50, height: 50, borderRadius: 12, marginRight: 10 },
-  badgeRow: { flexDirection: "row", marginTop: 6, gap: 6 },
-  badge: { backgroundColor: "#FFF1E6", borderRadius: 12, paddingVertical: 2, paddingHorizontal: 8 },
-  badgeLight: { backgroundColor: "#E8F5E9", borderRadius: 12, paddingVertical: 2, paddingHorizontal: 8 },
+
+  /* Driver Assigned View */
+  successHeader: {
+    alignItems: "center",
+    marginBottom: SPACING.xl,
+  },
+  successIconContainer: {
+    marginBottom: SPACING.md,
+  },
+  driverCard: {
+    alignItems: "center",
+    marginBottom: SPACING.lg,
+    position: 'relative',
+  },
+  driverAvatar: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    borderWidth: 5,
+    borderColor: COLORS.primary,
+  },
+  driverBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: '30%',
+    backgroundColor: COLORS.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.full,
+    ...SHADOWS.medium,
+  },
+  driverInfoCard: {
+    backgroundColor: COLORS.white2,
+    padding: SPACING.lg,
+    borderRadius: RADIUS.lg,
+    marginBottom: SPACING.lg,
+    ...SHADOWS.medium,
+  },
+  driverDetailsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: SPACING.lg,
+    gap: SPACING.sm,
+  },
+  driverDetailItem: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: COLORS.inputBackground,
+    padding: SPACING.md,
+    borderRadius: RADIUS.md,
+  },
+  detailIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  summaryCard: {
+    backgroundColor: COLORS.white2,
+    padding: SPACING.lg,
+    borderRadius: RADIUS.lg,
+    marginBottom: SPACING.xl,
+    ...SHADOWS.medium,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: SPACING.sm,
+  },
+  summaryIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.inputBackground,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: SPACING.md,
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: COLORS.border + '30',
+    marginVertical: SPACING.sm,
+  },
 });
