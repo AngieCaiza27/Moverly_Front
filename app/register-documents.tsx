@@ -135,12 +135,8 @@ export default function RegisterDocumentsScreen() {
     }
 
     // Aquí se conectaría con la API para crear la cuenta
-    Alert.alert("¡Éxito!", "Tu cuenta de conductor ha sido creada", [
-      {
-        text: "Ir a login",
-        onPress: () => router.replace("/login"),
-      },
-    ]);
+    // Navegar directamente a login después de completar documentos
+    router.replace("/login");
   };
 
   return (
