@@ -25,14 +25,14 @@ const MOCK_ADDRESSES: Address[] = [
   {
     id: "1",
     label: "Casa Principal",
-    address: "Av. Insurgentes Sur 1234, Col. Del Valle",
+    address: "Av. Cevallos y Montalvo, Ambato",
     details: "Edificio azul, Depto 501",
     isDefault: true,
   },
   {
     id: "2",
     label: "Casa de Fin de Semana",
-    address: "Calle Bosque 456, Coyoacán",
+    address: "Calle Rocafuerte, Baños de Agua Santa",
     details: "Portón café, timbre 2",
     isDefault: false,
   },
@@ -93,6 +93,7 @@ export default function HomeHouseScreen() {
       </View>
 
       <ScrollView
+        bounces={false}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -274,8 +275,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    flexGrow: 1,
     padding: SPACING.lg,
-    paddingBottom: 120,
+    paddingBottom: SPACING.lg,
   },
 
   /* Tarjeta de agregar */

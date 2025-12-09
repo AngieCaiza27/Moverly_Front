@@ -27,18 +27,18 @@ const MOCK_WORK_ADDRESSES: WorkAddress[] = [
     id: "1",
     label: "Oficina Principal",
     company: "TechCorp Solutions",
-    address: "Paseo de la Reforma 250, Cuauhtémoc, CDMX",
+    address: "Av. Cevallos 1245, Ambato, Tungurahua",
     details: "Torre B, Piso 15, Oficina 1501",
-    phone: "+52 55 1234 5678",
+    phone: "+593 3 242 5678",
     isDefault: true,
   },
   {
     id: "2",
     label: "Sucursal Norte",
     company: "TechCorp Solutions",
-    address: "Av. Constituyentes 950, Miguel Hidalgo, CDMX",
+    address: "Av. Los Guaytambos, Ambato, Tungurahua",
     details: "Edificio corporativo, Recepción planta baja",
-    phone: "+52 55 8765 4321",
+    phone: "+593 3 245 4321",
     isDefault: false,
   },
 ];
@@ -98,6 +98,7 @@ export default function HomeWorkScreen() {
       </View>
 
       <ScrollView
+        bounces={false}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -291,8 +292,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    flexGrow: 1,
     padding: SPACING.lg,
-    paddingBottom: 120,
+    paddingBottom: SPACING.lg,
   },
 
   /* Tarjeta de agregar */

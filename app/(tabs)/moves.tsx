@@ -23,6 +23,7 @@ export default function MovesScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <ScrollView 
+        bounces={false}
         style={styles.container} 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -303,7 +304,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   scrollContent: {
-    paddingBottom: 120,
+    flexGrow: 1,
+    paddingBottom: SPACING.lg,
   },
 
   /* Header */

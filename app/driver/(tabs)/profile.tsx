@@ -1,14 +1,37 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Alert, Image, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ThemedText from "../../../components/ui/themed-text";
 import { COLORS, RADIUS, SPACING } from "../../../constants/Colors";
+import { User } from "../../../constants/mockUsers";
 
 export default function DriverProfileScreen() {
   const [showImageModal, setShowImageModal] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  // Cargar datos del usuario actual
+  useEffect(() => {
+    loadCurrentUser();
+  }, []);
+
+  async function loadCurrentUser() {
+    try {
+      const userJson = await AsyncStorage.getItem('@current_user');
+      if (userJson) {
+        const user: User = JSON.parse(userJson);
+        setCurrentUser(user);
+        if (user.avatar) {
+          setProfileImage(user.avatar);
+        }
+      }
+    } catch (error) {
+      console.log('Error al cargar usuario:', error);
+    }
+  }
 
   const handleSelectImageSource = async (source: "camera" | "gallery") => {
     setShowImageModal(false);
@@ -54,7 +77,7 @@ export default function DriverProfileScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView bounces={false} style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Profile Header */}
       <View style={styles.profileHeader}>
         <View style={styles.profileImageContainer}>
@@ -74,7 +97,7 @@ export default function DriverProfileScreen() {
 
         <View style={[styles.profileInfo, { marginTop: 30 }]}>
           <ThemedText size={20} weight="bold" color="black">
-            Carlos Rodríguez
+            {currentUser?.name || "Cargando..."}
           </ThemedText>
           <ThemedText size={12} color={COLORS.gray} style={styles.profileStatus}>
             Chofer Verificado ✓
@@ -86,12 +109,12 @@ export default function DriverProfileScreen() {
                   key={i}
                   name="star"
                   size={16}
-                  color={i < 4 ? COLORS.warning : COLORS.lightGray}
+                  color={i < Math.floor(currentUser?.rating || 0) ? COLORS.warning : COLORS.lightGray}
                 />
               ))}
             </View>
             <ThemedText size={12} color={COLORS.gray}>
-              4.8 • 247 viajes
+              {currentUser?.rating?.toFixed(1) || "0.0"} • {currentUser?.trips || 0} viajes
             </ThemedText>
           </View>
         </View>
@@ -154,7 +177,7 @@ export default function DriverProfileScreen() {
               </ThemedText>
             </View>
             <ThemedText size={14} weight="bold" color="black">
-              Toyota Corolla 2023
+              {currentUser?.vehicle || "No especificado"}
             </ThemedText>
           </View>
 
@@ -166,7 +189,7 @@ export default function DriverProfileScreen() {
               </ThemedText>
             </View>
             <ThemedText size={14} weight="bold" color="black">
-              ABC-1234
+              {currentUser?.plate || "N/A"}
             </ThemedText>
           </View>
 
@@ -308,7 +331,23 @@ export default function DriverProfileScreen() {
       {/* Logout Button */}
       <TouchableOpacity 
         style={[styles.logoutButton, { backgroundColor: COLORS.error }]}
-        onPress={() => router.replace("/login")}>
+        onPress={async () => {
+          Alert.alert(
+            "Cerrar Sesión",
+            "¿Estás seguro que deseas cerrar sesión?",
+            [
+              { text: "Cancelar", style: "cancel" },
+              {
+                text: "Cerrar Sesión",
+                style: "destructive",
+                onPress: async () => {
+                  await AsyncStorage.removeItem('@current_user');
+                  router.replace("/login");
+                },
+              },
+            ]
+          );
+        }}>
         <Ionicons name="log-out" size={18} color="#fff" />
         <ThemedText color="#fff" weight="bold" size={14}>
           Cerrar Sesión

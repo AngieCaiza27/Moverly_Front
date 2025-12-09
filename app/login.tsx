@@ -1,12 +1,14 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View, Alert } from "react-native";
 import * as yup from "yup";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import FormInput from "../components/ui/FormInput";
 import ThemedText from "../components/ui/themed-text";
 import { COLORS } from "../constants/Colors";
+import { validateLogin } from "../constants/mockUsers";
 
 const schema = yup.object({
   email: yup.string().email("Correo inválido").required("Requerido"),
@@ -21,9 +23,27 @@ export default function LoginScreen() {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data: { email: string; password: string }) => {
-    // Detectar si es cliente o chofer según el email
-    if (data.email.startsWith("chofer@")) {
+  const onSubmit = async (data: { email: string; password: string }) => {
+    // Validar credenciales con base de datos estática
+    const user = validateLogin(data.email, data.password);
+    
+    if (!user) {
+      Alert.alert(
+        "Error de inicio de sesión",
+        "El correo electrónico o la contraseña son incorrectos. Por favor, verifica tus credenciales e intenta nuevamente."
+      );
+      return;
+    }
+
+    // Guardar sesión del usuario
+    try {
+      await AsyncStorage.setItem('@current_user', JSON.stringify(user));
+    } catch (error) {
+      console.log('Error al guardar sesión:', error);
+    }
+
+    // Redirigir según tipo de usuario
+    if (user.type === "driver") {
       router.replace("/driver");
     } else {
       router.replace("/(tabs)");
@@ -55,7 +75,7 @@ export default function LoginScreen() {
           <ThemedText style={{ color: "#7A8A93" }}>
             Mudarte nunca fue tan fácil
           </ThemedText>
-      </View>
+        </View>
 
       {/* Campos con FormInput */}
       <FormInput

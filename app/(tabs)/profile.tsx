@@ -34,19 +34,34 @@ export default function ProfileScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
   // Datos de ejemplo; idealmente vienen de contexto / API
   const user = {
-    name: "Angie Caiza",
-    email: "angie@example.com",
-    phone: "+52 55 1234 5678",
+    name: currentUser?.name || "Usuario",
+    email: currentUser?.email || "usuario@example.com",
+    phone: currentUser?.phone || "+52 55 0000 0000",
     avatar: avatarUri,
-    memberSince: "Enero 2024",
+    memberSince: currentUser?.memberSince || "2024",
   };
 
-  // Cargar avatar guardado al iniciar
+  // Cargar usuario y avatar guardado al iniciar
   useEffect(() => {
+    loadCurrentUser();
     loadAvatar();
   }, []);
+
+  async function loadCurrentUser() {
+    try {
+      const userJson = await AsyncStorage.getItem('@current_user');
+      if (userJson) {
+        const userData = JSON.parse(userJson);
+        setCurrentUser(userData);
+      }
+    } catch (error) {
+      console.log('Error al cargar usuario:', error);
+    }
+  }
 
   async function loadAvatar() {
     try {
@@ -84,14 +99,63 @@ export default function ProfileScreen() {
   }
 
   function handleSaveProfile() {
-    if (!editedName.trim() || !editedEmail.trim() || !editedPhone.trim()) {
-      Alert.alert("Error", "Por favor completa todos los campos");
+    // Validaciones detalladas
+    if (!editedName.trim()) {
+      Alert.alert(
+        "Nombre Requerido",
+        "Por favor ingresa tu nombre completo."
+      );
       return;
     }
+    
+    if (editedName.trim().length < 3) {
+      Alert.alert(
+        "Nombre Muy Corto",
+        "El nombre debe tener al menos 3 caracteres."
+      );
+      return;
+    }
+    
+    if (!editedEmail.trim()) {
+      Alert.alert(
+        "Correo Requerido",
+        "Por favor ingresa tu correo electrónico."
+      );
+      return;
+    }
+    
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(editedEmail)) {
+      Alert.alert(
+        "Correo Inválido",
+        "Por favor ingresa un correo electrónico válido."
+      );
+      return;
+    }
+    
+    if (!editedPhone.trim()) {
+      Alert.alert(
+        "Teléfono Requerido",
+        "Por favor ingresa tu número de teléfono."
+      );
+      return;
+    }
+    
+    // Validar formato de teléfono (al menos 10 dígitos)
+    const phoneDigits = editedPhone.replace(/\D/g, '');
+    if (phoneDigits.length < 10) {
+      Alert.alert(
+        "Teléfono Inválido",
+        "El número de teléfono debe tener al menos 10 dígitos."
+      );
+      return;
+    }
+    
     // Aquí se conectaría con la API para actualizar el perfil
     Alert.alert(
-      "Perfil actualizado",
-      "Tus datos han sido actualizados exitosamente",
+      "✓ Perfil Actualizado",
+      "Tus datos han sido actualizados exitosamente.",
       [
         {
           text: "OK",
@@ -115,26 +179,96 @@ export default function ProfileScreen() {
   }
 
   function handleSavePassword() {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert("Error", "Por favor completa todos los campos");
+    // Validaciones detalladas
+    if (!currentPassword) {
+      Alert.alert(
+        "Contraseña Actual Requerida",
+        "Por favor ingresa tu contraseña actual para verificar tu identidad."
+      );
       return;
     }
-    if (newPassword !== confirmPassword) {
-      Alert.alert("Error", "Las contraseñas no coinciden");
+    
+    if (currentPassword.length < 6) {
+      Alert.alert(
+        "Contraseña Incorrecta",
+        "La contraseña actual no es válida."
+      );
       return;
     }
+    
+    if (!newPassword) {
+      Alert.alert(
+        "Nueva Contraseña Requerida",
+        "Por favor ingresa tu nueva contraseña."
+      );
+      return;
+    }
+    
     if (newPassword.length < 6) {
-      Alert.alert("Error", "La contraseña debe tener al menos 6 caracteres");
+      Alert.alert(
+        "Contraseña Muy Corta",
+        "La nueva contraseña debe tener al menos 6 caracteres."
+      );
       return;
     }
+    
+    if (newPassword.length > 20) {
+      Alert.alert(
+        "Contraseña Muy Larga",
+        "La contraseña no puede tener más de 20 caracteres."
+      );
+      return;
+    }
+    
+    if (!confirmPassword) {
+      Alert.alert(
+        "Confirmación Requerida",
+        "Por favor confirma tu nueva contraseña."
+      );
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      Alert.alert(
+        "Las Contraseñas No Coinciden",
+        "La nueva contraseña y su confirmación deben ser iguales."
+      );
+      return;
+    }
+    
+    if (currentPassword === newPassword) {
+      Alert.alert(
+        "Misma Contraseña",
+        "La nueva contraseña debe ser diferente a la actual."
+      );
+      return;
+    }
+    
+    // Validar complejidad básica
+    const hasNumber = /\d/.test(newPassword);
+    const hasLetter = /[a-zA-Z]/.test(newPassword);
+    
+    if (!hasNumber || !hasLetter) {
+      Alert.alert(
+        "Contraseña Débil",
+        "La contraseña debe contener al menos una letra y un número para mayor seguridad."
+      );
+      return;
+    }
+    
     // Aquí se conectaría con la API
     Alert.alert(
-      "Contraseña actualizada",
-      "Tu contraseña ha sido cambiada exitosamente",
+      "✓ Contraseña Actualizada",
+      "Tu contraseña ha sido cambiada exitosamente. Usa tu nueva contraseña en tu próximo inicio de sesión.",
       [
         {
           text: "OK",
-          onPress: () => setShowPasswordModal(false),
+          onPress: () => {
+            setShowPasswordModal(false);
+            setCurrentPassword("");
+            setNewPassword("");
+            setConfirmPassword("");
+          },
         },
       ]
     );
@@ -262,7 +396,11 @@ export default function ProfileScreen() {
       { 
         text: "Cerrar sesión", 
         style: "destructive",
-        onPress: () => router.replace("/login") 
+        onPress: async () => {
+          await AsyncStorage.removeItem('@current_user');
+          await AsyncStorage.removeItem('@user_avatar');
+          router.replace("/login");
+        }
       },
     ]);
   }
@@ -302,6 +440,7 @@ export default function ProfileScreen() {
       </View>
 
       <ScrollView 
+        bounces={false}
         style={styles.scrollContent}
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
@@ -787,8 +926,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContainer: {
+    flexGrow: 1,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.md,
+    paddingBottom: SPACING.lg,
   },
   profileCard: {
     backgroundColor: COLORS.white2,

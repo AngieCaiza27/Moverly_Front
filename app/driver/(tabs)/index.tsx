@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Alert, FlatList, Linking, Modal, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { User } from "../../../constants/mockUsers";
 import ThemedText from "../../../components/ui/themed-text";
 import { COLORS, RADIUS, SPACING } from "../../../constants/Colors";
 
@@ -10,9 +12,12 @@ type PaymentMethod = "card" | "transfer" | "cash";
 type ModalStep = "trip-details" | "confirm-end" | "transfer" | "cash-confirmed" | "trip-confirmed";
 
 export default function DriverHomeScreen() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [driverStatus, setDriverStatus] = useState<DriverStatus>("online");
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [showTripDetails, setShowTripDetails] = useState(false);
+  const [hasAssignedTrip, setHasAssignedTrip] = useState(false);
+  const [assignedTrip, setAssignedTrip] = useState<any>(null);
   const [currentModalStep, setCurrentModalStep] = useState<ModalStep>("trip-details");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card"); // Mock payment method
   const [showChatModal, setShowChatModal] = useState(false);
@@ -24,6 +29,56 @@ export default function DriverHomeScreen() {
   ]);
   const [chatInput, setChatInput] = useState("");
 
+  useEffect(() => {
+    loadCurrentUser();
+    loadAssignedTrip();
+  }, []);
+
+  useEffect(() => {
+    // Cambiar estado automáticamente según si hay viaje asignado
+    if (hasAssignedTrip) {
+      setDriverStatus("busy");
+    } else {
+      setDriverStatus("online");
+    }
+  }, [hasAssignedTrip]);
+
+  useEffect(() => {
+    // Escuchar cambios en el storage para actualizar viaje asignado
+    const interval = setInterval(() => {
+      loadAssignedTrip();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadCurrentUser = async () => {
+    try {
+      const userJson = await AsyncStorage.getItem('@current_user');
+      if (userJson) {
+        const user = JSON.parse(userJson);
+        setCurrentUser(user);
+      }
+    } catch (error) {
+      console.log('Error al cargar usuario:', error);
+    }
+  };
+
+  const loadAssignedTrip = async () => {
+    try {
+      const tripJson = await AsyncStorage.getItem('@assigned_trip');
+      if (tripJson) {
+        const trip = JSON.parse(tripJson);
+        setAssignedTrip(trip);
+        setHasAssignedTrip(true);
+      } else {
+        setAssignedTrip(null);
+        setHasAssignedTrip(false);
+      }
+    } catch (error) {
+      console.log('Error al cargar viaje:', error);
+    }
+  };
+
   const statusConfig: Record<DriverStatus, { label: string; color: string; icon: string }> = {
     online: { label: "En Línea", color: COLORS.success, icon: "checkmark-circle" },
     busy: { label: "Ocupado", color: COLORS.warning, icon: "radio-button-on" },
@@ -33,8 +88,23 @@ export default function DriverHomeScreen() {
   const currentStatus = statusConfig[driverStatus];
 
   const handleStatusChange = (newStatus: DriverStatus) => {
+    if (newStatus === "offline" && hasAssignedTrip) {
+      Alert.alert(
+        "Viaje en Curso",
+        "No puedes desconectarte mientras tienes un viaje asignado. Completa el viaje primero."
+      );
+      return;
+    }
     setDriverStatus(newStatus);
     setShowStatusMenu(false);
+    
+    const statusMessages = {
+      online: "Ahora estás disponible para recibir viajes",
+      busy: "Estado cambiado a ocupado",
+      offline: "Te has desconectado. No recibirás nuevos viajes"
+    };
+    
+    Alert.alert("¡Listo!", statusMessages[newStatus]);
   };
 
   const handleConcludeTrip = () => {
@@ -62,18 +132,43 @@ export default function DriverHomeScreen() {
   };
 
   const handleConfirmCall = () => {
+    if (!hasAssignedTrip) {
+      Alert.alert(
+        "Sin Viaje Asignado",
+        "No tienes un viaje activo para realizar esta acción."
+      );
+      setShowCallModal(false);
+      return;
+    }
     const phoneNumber = "+573001234567";
     Linking.openURL(`tel:${phoneNumber}`).catch(() => {
-      Alert.alert("Error", "No se pudo realizar la llamada");
+      Alert.alert(
+        "Error de Llamada",
+        "No se pudo realizar la llamada. Verifica que tu dispositivo tenga funcionalidad de teléfono."
+      );
     });
     setShowCallModal(false);
   };
 
   const handleSendMessage = () => {
+    if (!hasAssignedTrip) {
+      Alert.alert(
+        "Sin Viaje Asignado",
+        "No tienes un viaje activo para enviar mensajes."
+      );
+      return;
+    }
     setShowChatModal(true);
   };
 
   const handleOpenRoute = () => {
+    if (!hasAssignedTrip) {
+      Alert.alert(
+        "Sin Viaje Asignado",
+        "No tienes un viaje activo para ver la ruta."
+      );
+      return;
+    }
     setShowRouteModal(true);
   };
 
@@ -95,14 +190,18 @@ export default function DriverHomeScreen() {
     }
   };
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
+      <ScrollView 
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}>
       {/* Header */}
-      <View style={[styles.header, { marginTop: 25 }]}>
-        <View>
-          <ThemedText size={28} weight="bold" color="black" style={styles.headerTitle}>
-            Bienvenido, Chofer 👋
+      <View style={styles.header}>
+        <View style={{ flex: 1 }}>
+          <ThemedText size={24} weight="bold" color="black" style={styles.headerTitle}>
+            Bienvenido, {currentUser?.name || 'Chofer'} 👋
           </ThemedText>
-          <ThemedText size={16} style={styles.headerSubtitle}>
+          <ThemedText size={14} style={styles.headerSubtitle}>
             Gestiona tus viajes y ganancias
           </ThemedText>
         </View>
@@ -228,7 +327,7 @@ export default function DriverHomeScreen() {
               <View style={styles.mapPlaceholder}>
                 <Ionicons name="map" size={60} color={COLORS.gray} />
                 <ThemedText size={14} color={COLORS.gray} style={{ marginTop: 8 }}>
-                  Ruta: Cra 7 No. 23-45 → Av. Paseo 100 No. 50
+                  Ruta: {assignedTrip?.pickupLocation || "Origen"} → {assignedTrip?.dropoffLocation || "Destino"}
                 </ThemedText>
               </View>
             </View>
@@ -247,7 +346,7 @@ export default function DriverHomeScreen() {
                     Origen
                   </ThemedText>
                   <ThemedText size={14} weight="bold" color="black">
-                    Cra 7 No. 23-45
+                    {assignedTrip?.pickupLocation || "Av. Cevallos y Montalvo, Ambato"}
                   </ThemedText>
                 </View>
               </View>
@@ -263,7 +362,7 @@ export default function DriverHomeScreen() {
                     Destino
                   </ThemedText>
                   <ThemedText size={14} weight="bold" color="black">
-                    Av. Paseo 100 No. 50
+                    {assignedTrip?.dropoffLocation || "Mall de los Andes, Ambato"}
                   </ThemedText>
                 </View>
               </View>
@@ -644,7 +743,7 @@ export default function DriverHomeScreen() {
               <View style={styles.mapPlaceholder}>
                 <Ionicons name="map" size={60} color={COLORS.gray} />
                 <ThemedText size={14} color={COLORS.gray} style={{ marginTop: 8 }}>
-                  Ruta: Cra 7 No. 23-45 → Av. Paseo 100 No. 50
+                  Ruta: {assignedTrip?.pickupLocation || "Origen"} → {assignedTrip?.dropoffLocation || "Destino"}
                 </ThemedText>
               </View>
             </View>
@@ -663,7 +762,7 @@ export default function DriverHomeScreen() {
                     Origen
                   </ThemedText>
                   <ThemedText size={14} weight="bold" color="black">
-                    Cra 7 No. 23-45
+                    {assignedTrip?.pickupLocation || "Av. Cevallos y Montalvo, Ambato"}
                   </ThemedText>
                 </View>
               </View>
@@ -679,7 +778,7 @@ export default function DriverHomeScreen() {
                     Destino
                   </ThemedText>
                   <ThemedText size={14} weight="bold" color="black">
-                    Av. Paseo 100 No. 50
+                    {assignedTrip?.dropoffLocation || "Mall de los Andes, Ambato"}
                   </ThemedText>
                 </View>
               </View>
@@ -761,49 +860,71 @@ export default function DriverHomeScreen() {
         </View>
       </View>
 
-      {/* Current Trip */}
+      {/* Buscar Nuevo Viaje */}
       <View style={styles.sectionContainer}>
         <ThemedText weight="bold" size={18} color="black" style={styles.sectionTitle}>
-          Viaje Actual
+          Buscar Nuevo Viaje
         </ThemedText>
-        <View style={styles.tripCard}>
-          <View style={styles.tripHeader}>
-            <View>
-              <ThemedText size={13} weight="bold" color="black" style={styles.tripFrom}>
-                📍 Cra 7 No. 23-45
-              </ThemedText>
-              <ThemedText size={13} weight="bold" color="black" style={styles.tripTo}>
-                📍 Av. Paseo 100 No. 50
-              </ThemedText>
+        {hasAssignedTrip && assignedTrip ? (
+          <View style={styles.tripCard}>
+            <View style={styles.tripHeader}>
+              <View>
+                <ThemedText size={13} weight="bold" color="black" style={styles.tripFrom}>
+                  📍 {assignedTrip.pickupLocation}
+                </ThemedText>
+                <ThemedText size={13} weight="bold" color="black" style={styles.tripTo}>
+                  📍 {assignedTrip.dropoffLocation}
+                </ThemedText>
+              </View>
+              <View style={styles.tripTime}>
+                <ThemedText size={12} weight="bold" color="black">
+                  {assignedTrip.estimatedTime}
+                </ThemedText>
+                <ThemedText size={11} color={COLORS.gray} style={styles.tripDistance}>
+                  {assignedTrip.distance}
+                </ThemedText>
+              </View>
             </View>
-            <View style={styles.tripTime}>
-              <ThemedText size={12} weight="bold" color="black">
-                12 min
-              </ThemedText>
-              <ThemedText size={11} color={COLORS.gray} style={styles.tripDistance}>
-                4.5 km
-              </ThemedText>
+            <View style={styles.tripPassenger}>
+              <View style={[styles.passengerAvatar, { backgroundColor: COLORS.primary }]}>
+                <Ionicons name="person" size={20} color="#fff" />
+              </View>
+              <View style={styles.passengerInfo}>
+                <ThemedText weight="bold" color="black">{assignedTrip.passengerName}</ThemedText>
+                <ThemedText size={11} color={COLORS.gray} style={styles.passengerRating}>
+                  ⭐ {assignedTrip.passengerRating}
+                </ThemedText>
+              </View>
             </View>
+            <TouchableOpacity 
+              style={[styles.primaryButton, { backgroundColor: COLORS.primary }]}
+              onPress={() => setShowTripDetails(true)}>
+              <ThemedText color="#fff" weight="bold" size={14}>
+                Ver Detalles
+              </ThemedText>
+            </TouchableOpacity>
           </View>
-          <View style={styles.tripPassenger}>
-            <View style={[styles.passengerAvatar, { backgroundColor: COLORS.primary }]}>
-              <Ionicons name="person" size={20} color="#fff" />
+        ) : (
+          <View style={styles.searchTripCard}>
+            <View style={styles.searchIcon}>
+              <Ionicons name="search" size={48} color={COLORS.primary} />
             </View>
-            <View style={styles.passengerInfo}>
-              <ThemedText weight="bold" color="black">Juan Pérez</ThemedText>
-              <ThemedText size={11} color={COLORS.gray} style={styles.passengerRating}>
-                ⭐ 4.9 • 25 viajes
-              </ThemedText>
-            </View>
-          </View>
-          <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: COLORS.primary }]}
-            onPress={() => setShowTripDetails(true)}>
-            <ThemedText color="#fff" weight="bold" size={14}>
-              Ver Detalles
+            <ThemedText size={16} weight="bold" color="black" style={{ marginBottom: 8, textAlign: "center" }}>
+              No hay viajes disponibles
             </ThemedText>
-          </TouchableOpacity>
-        </View>
+            <ThemedText size={13} color={COLORS.gray} style={{ textAlign: "center", marginBottom: 20 }}>
+              Espera a que un cliente solicite un viaje
+            </ThemedText>
+            <TouchableOpacity 
+              style={[styles.primaryButton, { backgroundColor: COLORS.primary }]}
+              onPress={() => router.push("/driver/(tabs)/trips")}>
+              <Ionicons name="search" size={20} color="#fff" />
+              <ThemedText color="#fff" weight="bold" size={14}>
+                Buscar Viajes
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {/* Quick Actions */}
@@ -812,36 +933,53 @@ export default function DriverHomeScreen() {
           Acciones Rápidas
         </ThemedText>
         <View style={styles.actionsGrid}>
-          <TouchableOpacity style={styles.actionCard} onPress={handleCallPassenger}>
-            <Ionicons name="call" size={32} color={COLORS.primary} />
-            <ThemedText size={12} weight="bold" color="black">
+          <TouchableOpacity 
+            style={[styles.actionCard, { backgroundColor: COLORS.primary + '15' }]} 
+            onPress={handleCallPassenger}>
+            <View style={[styles.actionIconContainer, { backgroundColor: COLORS.primary }]}>
+              <Ionicons name="call" size={28} color="#fff" />
+            </View>
+            <ThemedText size={14} weight="bold" color="black">
               Llamar
             </ThemedText>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionCard} onPress={handleSendMessage}>
-            <Ionicons name="mail" size={32} color={COLORS.success} />
-            <ThemedText size={12} weight="bold" color="black">
-              Mensaje
+          <TouchableOpacity 
+            style={[styles.actionCard, { backgroundColor: COLORS.success + '15' }]} 
+            onPress={handleSendMessage}>
+            <View style={[styles.actionIconContainer, { backgroundColor: COLORS.success }]}>
+              <Ionicons name="chatbubbles" size={28} color="#fff" />
+            </View>
+            <ThemedText size={14} weight="bold" color="black">
+              Chat
             </ThemedText>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionCard} onPress={handleOpenRoute}>
-            <Ionicons name="map" size={32} color={COLORS.warning} />
-            <ThemedText size={12} weight="bold" color="black">
+          <TouchableOpacity 
+            style={[styles.actionCard, { backgroundColor: COLORS.warning + '15' }]} 
+            onPress={handleOpenRoute}>
+            <View style={[styles.actionIconContainer, { backgroundColor: COLORS.warning }]}>
+              <Ionicons name="navigate" size={28} color="#fff" />
+            </View>
+            <ThemedText size={14} weight="bold" color="black">
               Ruta
             </ThemedText>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionCard} onPress={handleSupport}>
-            <Ionicons name="information-circle" size={32} color={COLORS.secondary} />
-            <ThemedText size={12} weight="bold" color="black">
-              Soporte
+          <TouchableOpacity 
+            style={[styles.actionCard, { backgroundColor: COLORS.secondary + '15' }]} 
+            onPress={handleSupport}>
+            <View style={[styles.actionIconContainer, { backgroundColor: COLORS.secondary }]}>
+              <Ionicons name="help-circle" size={28} color="#fff" />
+            </View>
+            <ThemedText size={14} weight="bold" color="black">
+              Ayuda
             </ThemedText>
           </TouchableOpacity>
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -849,14 +987,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.lg,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    paddingVertical: SPACING.md,
-    paddingTop: SPACING.xl,
+    alignItems: "center",
+    paddingTop: SPACING.xl + 20,
+    paddingBottom: SPACING.md,
+    marginBottom: SPACING.sm,
   },
   headerTitle: {
     marginBottom: 4,
@@ -865,9 +1008,14 @@ const styles = StyleSheet.create({
     color: COLORS.gray,
   },
   statusCard: {
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
     marginBottom: SPACING.lg,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
   },
   statusContent: {
     flexDirection: "row",
@@ -890,10 +1038,15 @@ const styles = StyleSheet.create({
   statCard: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.lg,
     backgroundColor: COLORS.white,
     borderRadius: RADIUS.lg,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   statIcon: {
     width: 48,
@@ -917,6 +1070,41 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
     marginBottom: SPACING.md,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  searchTripCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.xl,
+    marginBottom: SPACING.md,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  searchIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: COLORS.primary + '15',
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: SPACING.md,
+  },
+  primaryButton: {
+    flexDirection: "row",
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: RADIUS.lg,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: SPACING.sm,
   },
   tripHeader: {
     flexDirection: "row",
@@ -985,18 +1173,26 @@ const styles = StyleSheet.create({
   actionsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: SPACING.md,
     justifyContent: "space-between",
+    marginBottom: SPACING.xl,
   },
   actionCard: {
-    flex: 1,
-    minWidth: "45%",
-    paddingVertical: SPACING.lg,
-    backgroundColor: COLORS.white,
-    borderRadius: RADIUS.lg,
+    width: "47%",
+    paddingVertical: SPACING.lg + 4,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: RADIUS.xl,
     justifyContent: "center",
     alignItems: "center",
-    gap: SPACING.sm,
+    gap: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  actionIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: SPACING.xs,
   },
   modalOverlay: {
     flex: 1,

@@ -38,32 +38,32 @@ const MOCK_ORDERS: Order[] = [
     id: "1",
     company: "Mudanzas Águila Express",
     number: "#MUD-2024-001",
-    from: "Ciudad de México",
-    fromAddress: "Av. Reforma 250, Cuauhtémoc",
-    to: "Guadalajara, Jalisco",
-    toAddress: "Plaza del Sol 1800, Zapopan",
+    from: "Ambato",
+    fromAddress: "Av. Cevallos y Montalvo, Ambato",
+    to: "Baños de Agua Santa",
+    toAddress: "Calle Ambato 123, Baños",
     datetime: "05 Dic, 14:30",
     price: 2850.00,
-    distance: "542 km",
+    distance: "42 km",
     vehicleType: "Camión 3.5 ton",
     driver: "Carlos Méndez",
-    duration: "7h 20min",
+    duration: "1h 15min",
     status: "completado",
   },
   {
     id: "2",
     company: "Fletes Rápidos del Norte",
     number: "#FLE-2024-058",
-    from: "Monterrey, Nuevo León",
-    fromAddress: "Av. Constitución 1050",
-    to: "Querétaro",
-    toAddress: "Blvd. Bernardo Quintana 4100",
+    from: "Ambato",
+    fromAddress: "Av. Los Guaytambos, Ambato",
+    to: "Pelileo",
+    toAddress: "Calle García Moreno, Pelileo",
     datetime: "28 Nov, 09:15",
     price: 4200.50,
-    distance: "684 km",
+    distance: "18 km",
     vehicleType: "Camioneta pickup",
     driver: "Roberto Sánchez",
-    duration: "8h 45min",
+    duration: "35min",
     status: "completado",
   },
   {
@@ -539,10 +539,11 @@ Duración: ${order.duration}
 
 
       <FlatList
+        bounces={false}
         data={filtered}
         keyExtractor={(i) => i.id}
         renderItem={renderItem}
-        contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
+        contentContainerStyle={{ flexGrow: 1, padding: SPACING.lg, paddingBottom: SPACING.lg }}
         ItemSeparatorComponent={() => <View style={{ height: SPACING.md }} />}
         ListEmptyComponent={() => (
           <View style={styles.emptyBox}>

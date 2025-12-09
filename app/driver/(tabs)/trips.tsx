@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, TouchableOpacity, View, Alert } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ThemedText from "../../../components/ui/themed-text";
 import { COLORS, RADIUS, SPACING } from "../../../constants/Colors";
 
@@ -22,8 +23,8 @@ const AVAILABLE_TRIPS: Trip[] = [
     id: "1",
     passengerName: "Ana Martínez",
     passengerRating: 4.9,
-    pickupLocation: "Cra 11 No. 100",
-    dropoffLocation: "Centro Comercial Premium",
+    pickupLocation: "Av. Cevallos y Montalvo, Ambato",
+    dropoffLocation: "Mall de los Andes, Ambato",
     distance: "6.2 km",
     estimatedTime: "18 min",
     fare: "$18.500",
@@ -34,8 +35,8 @@ const AVAILABLE_TRIPS: Trip[] = [
     id: "2",
     passengerName: "Roberto Silva",
     passengerRating: 4.7,
-    pickupLocation: "Av. Carrera 50 No. 25",
-    dropoffLocation: "Terminal de Transporte",
+    pickupLocation: "Parque Montalvo, Centro Ambato",
+    dropoffLocation: "Terminal Terrestre Ambato",
     distance: "8.1 km",
     estimatedTime: "22 min",
     fare: "$24.300",
@@ -46,8 +47,8 @@ const AVAILABLE_TRIPS: Trip[] = [
     id: "3",
     passengerName: "Sofía López",
     passengerRating: 5.0,
-    pickupLocation: "Centro Comercial El Hueco",
-    dropoffLocation: "Residencial Las Flores",
+    pickupLocation: "Av. Los Guaytambos, Ambato",
+    dropoffLocation: "Ficoa, Barrio La Joya",
     distance: "4.8 km",
     estimatedTime: "15 min",
     fare: "$16.200",
@@ -61,8 +62,8 @@ const COMPLETED_TRIPS: Trip[] = [
     id: "101",
     passengerName: "Carlos Mendoza",
     passengerRating: 4.8,
-    pickupLocation: "Estación de Policía",
-    dropoffLocation: "Cra 8 No. 45",
+    pickupLocation: "Parque Provincial de la Familia",
+    dropoffLocation: "Av. Atahualpa, Ambato",
     distance: "3.5 km",
     estimatedTime: "12 min",
     fare: "$12.800",
@@ -73,8 +74,8 @@ const COMPLETED_TRIPS: Trip[] = [
     id: "102",
     passengerName: "Laura Gómez",
     passengerRating: 4.6,
-    pickupLocation: "Centro Médico San Rafael",
-    dropoffLocation: "Av. Paseo 100",
+    pickupLocation: "Hospital Regional Ambato",
+    dropoffLocation: "Av. Indoamérica, Ambato",
     distance: "5.2 km",
     estimatedTime: "16 min",
     fare: "$18.100",
@@ -85,8 +86,44 @@ const COMPLETED_TRIPS: Trip[] = [
 
 export default function DriverTripsScreen() {
   const [activeTab, setActiveTab] = useState<"available" | "completed">("available");
+  const [availableTrips, setAvailableTrips] = useState<Trip[]>(AVAILABLE_TRIPS);
 
-  const trips = activeTab === "available" ? AVAILABLE_TRIPS : COMPLETED_TRIPS;
+  const trips = activeTab === "available" ? availableTrips : COMPLETED_TRIPS;
+
+  const handleAcceptTrip = async (trip: Trip) => {
+    try {
+      // Guardar viaje aceptado en AsyncStorage
+      await AsyncStorage.setItem('@assigned_trip', JSON.stringify(trip));
+      
+      // Eliminar de la lista de disponibles
+      setAvailableTrips(availableTrips.filter(t => t.id !== trip.id));
+      
+      Alert.alert(
+        "¡Viaje Aceptado!",
+        `Has aceptado el viaje hacia ${trip.dropoffLocation}`,
+        [{ text: "OK" }]
+      );
+    } catch (error) {
+      console.log('Error al aceptar viaje:', error);
+    }
+  };
+
+  const handleRejectTrip = (trip: Trip) => {
+    Alert.alert(
+      "Rechazar Viaje",
+      "¿Estás seguro de rechazar este viaje?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Rechazar",
+          style: "destructive",
+          onPress: () => {
+            setAvailableTrips(availableTrips.filter(t => t.id !== trip.id));
+          }
+        }
+      ]
+    );
+  };
 
   const renderTripCard = ({ item }: { item: Trip }) => (
     <View style={styles.tripCard}>
@@ -109,7 +146,7 @@ export default function DriverTripsScreen() {
           </ThemedText>
         </View>
         {activeTab === "available" && (
-          <View style={[styles.fareBadge, { backgroundColor: COLORS.info }]}>
+          <View style={[styles.fareBadge, { backgroundColor: COLORS.success }]}>
             <ThemedText color="#fff" weight="bold" size={16}>
               {item.fare}
             </ThemedText>
@@ -120,16 +157,12 @@ export default function DriverTripsScreen() {
       {/* Route */}
       <View style={styles.routeSection}>
         <View style={styles.routeMarkers}>
-          <View style={[styles.marker, { backgroundColor: COLORS.info }]}>
-            <ThemedText color="#fff" weight="bold" size={12}>
-              A
-            </ThemedText>
+          <View style={[styles.marker, { backgroundColor: COLORS.primary }]}>
+            <Ionicons name="location" size={16} color="#fff" />
           </View>
           <View style={styles.routeLine} />
-          <View style={[styles.marker, { backgroundColor: COLORS.info }]}>
-            <ThemedText color="#fff" weight="bold" size={12}>
-              B
-            </ThemedText>
+          <View style={[styles.marker, { backgroundColor: COLORS.secondary }]}>
+            <Ionicons name="flag" size={16} color="#fff" />
           </View>
         </View>
         <View style={styles.routeDetails}>
@@ -145,14 +178,14 @@ export default function DriverTripsScreen() {
       {/* Trip Info */}
       <View style={styles.tripInfo}>
         <View style={styles.infoItem}>
-          <Ionicons name="arrow-forward" size={16} color={COLORS.info} />
+          <Ionicons name="navigate" size={16} color={COLORS.primary} />
           <ThemedText size={12} weight="bold" color="black">
             {item.distance}
           </ThemedText>
         </View>
         <View style={styles.infoDivider} />
         <View style={styles.infoItem}>
-          <Ionicons name="time" size={16} color={COLORS.info} />
+          <Ionicons name="time-outline" size={16} color={COLORS.secondary} />
           <ThemedText size={12} weight="bold" color="black">
             {item.estimatedTime}
           </ThemedText>
@@ -163,12 +196,16 @@ export default function DriverTripsScreen() {
       {activeTab === "available" ? (
         <View style={styles.actionsContainer}>
           <TouchableOpacity
-            style={[styles.actionButtonSecondary, { borderColor: COLORS.error }]}>
+            style={[styles.actionButtonSecondary, { borderColor: COLORS.error }]}
+            onPress={() => handleRejectTrip(item)}>
+            <Ionicons name="close" size={18} color={COLORS.error} />
             <ThemedText size={13} weight="bold" color={COLORS.error}>
               Rechazar
             </ThemedText>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButtonPrimary, { backgroundColor: COLORS.success }]}>
+          <TouchableOpacity 
+            style={[styles.actionButtonPrimary, { backgroundColor: COLORS.success }]}
+            onPress={() => handleAcceptTrip(item)}>
             <Ionicons name="checkmark" size={18} color="#fff" />
             <ThemedText color="#fff" weight="bold" size={13}>
               Aceptar
@@ -190,9 +227,14 @@ export default function DriverTripsScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <ThemedText size={28} weight="bold" color="black">
-          Viajes
-        </ThemedText>
+        <View>
+          <ThemedText size={24} weight="bold" color="black">
+            Viajes Disponibles
+          </ThemedText>
+          <ThemedText size={14} color={COLORS.gray}>
+            Selecciona un viaje para comenzar
+          </ThemedText>
+        </View>
       </View>
 
       {/* Tab Buttons */}
@@ -200,37 +242,37 @@ export default function DriverTripsScreen() {
         <TouchableOpacity
           style={[
             styles.tabButton,
-            activeTab === "available" && [styles.tabButtonActive, { borderBottomColor: COLORS.info }],
+            activeTab === "available" && [styles.tabButtonActive, { borderBottomColor: COLORS.primary }],
           ]}
           onPress={() => setActiveTab("available")}>
           <Ionicons
-            name="send"
+            name="car-sport"
             size={18}
-            color={activeTab === "available" ? COLORS.info : COLORS.gray}
+            color={activeTab === "available" ? COLORS.primary : COLORS.gray}
           />
           <ThemedText
             size={14}
             weight={activeTab === "available" ? "bold" : "regular"}
-            color={activeTab === "available" ? COLORS.info : COLORS.gray}>
-            Disponibles
+            color={activeTab === "available" ? COLORS.primary : COLORS.gray}>
+            Disponibles ({availableTrips.length})
           </ThemedText>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[
             styles.tabButton,
-            activeTab === "completed" && [styles.tabButtonActive, { borderBottomColor: COLORS.info }],
+            activeTab === "completed" && [styles.tabButtonActive, { borderBottomColor: COLORS.primary }],
           ]}
           onPress={() => setActiveTab("completed")}>
           <Ionicons
-            name="checkmark-circle"
+            name="checkmark-done"
             size={18}
-            color={activeTab === "completed" ? COLORS.info : COLORS.gray}
+            color={activeTab === "completed" ? COLORS.primary : COLORS.gray}
           />
           <ThemedText
             size={14}
             weight={activeTab === "completed" ? "bold" : "regular"}
-            color={activeTab === "completed" ? COLORS.info : COLORS.gray}>
+            color={activeTab === "completed" ? COLORS.primary : COLORS.gray}>
             Completados
           </ThemedText>
         </TouchableOpacity>
@@ -238,11 +280,12 @@ export default function DriverTripsScreen() {
 
       {/* Trips List */}
       <FlatList
+        bounces={false}
         data={trips}
         renderItem={renderTripCard}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
-        scrollEnabled={false}
+        showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Ionicons name="send" size={48} color={COLORS.gray} />
@@ -263,8 +306,8 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: SPACING.md,
-    paddingTop: SPACING.xl,
-    paddingBottom: SPACING.md,
+    paddingTop: SPACING.xl + 20,
+    paddingBottom: SPACING.lg,
   },
   tabContainer: {
     flexDirection: "row",
@@ -286,13 +329,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 3,
   },
   listContent: {
+    flexGrow: 1,
     padding: SPACING.md,
+    paddingBottom: SPACING.lg,
     gap: SPACING.md,
   },
   tripCard: {
     backgroundColor: COLORS.white,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   cardHeader: {
     flexDirection: "row",
@@ -342,11 +392,16 @@ const styles = StyleSheet.create({
     gap: SPACING.sm,
   },
   marker: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   routeLine: {
     width: 2,
@@ -380,16 +435,18 @@ const styles = StyleSheet.create({
   },
   actionButtonSecondary: {
     flex: 1,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.md,
-    borderWidth: 1.5,
+    paddingVertical: SPACING.md + 2,
+    borderRadius: RADIUS.lg,
+    borderWidth: 2,
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    gap: SPACING.sm,
   },
   actionButtonPrimary: {
     flex: 1,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.md,
+    paddingVertical: SPACING.md + 2,
+    borderRadius: RADIUS.lg,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",

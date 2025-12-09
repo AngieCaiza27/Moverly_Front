@@ -10,6 +10,7 @@ export default function HomeScreen() {
 
   return (
     <ScrollView 
+      bounces={false}
       style={styles.container} 
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
@@ -249,9 +250,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.xl,
-    paddingBottom: 120,
+    paddingBottom: SPACING.lg,
   },
   
   /* Banner */

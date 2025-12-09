@@ -195,6 +195,7 @@ export default function HomeFavoritesScreen() {
       </View>
 
       <ScrollView
+        bounces={false}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -391,8 +392,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    flexGrow: 1,
     padding: SPACING.lg,
-    paddingBottom: SPACING.xxl,
+    paddingBottom: SPACING.lg,
   },
 
   /* Tarjetas de favoritos */

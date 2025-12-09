@@ -17,7 +17,8 @@ import { useState, useEffect } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 export default function QuotesScreen() {
-  const { vehicle } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const [selectedVehicle, setSelectedVehicle] = useState<string | null>((params.vehicle as string) || null);
   const [origen, setOrigen] = useState<string | null>(null);
   const [destino, setDestino] = useState<string | null>(null);
   const [fecha, setFecha] = useState<Date | null>(null);
@@ -27,23 +28,43 @@ export default function QuotesScreen() {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
   const [assignedDriver, setAssignedDriver] = useState<any>(null);
+  const [showVehicleModal, setShowVehicleModal] = useState(false);
+
+  // Opciones de vehículos disponibles
+  const vehicleOptions = [
+    {
+      name: "Camioneta",
+      icon: "car",
+      description: "Ideal para mudanzas pequeñas",
+      price: 2850,
+      capacity: "Hasta 2 toneladas",
+    },
+    {
+      name: "Camión",
+      icon: "bus",
+      description: "Para mudanzas medianas",
+      price: 3500,
+      capacity: "Hasta 5 toneladas",
+    },
+    {
+      name: "Tráiler",
+      icon: "trail-sign",
+      description: "Para mudanzas grandes",
+      price: 4800,
+      capacity: "Hasta 10 toneladas",
+    },
+  ];
 
   // Configura el precio según el vehículo
   useEffect(() => {
-    switch (vehicle) {
-      case "Camioneta":
-        setPrecio(2850);
-        break;
-      case "Camión":
-        setPrecio(3500);
-        break;
-      case "Tráiler":
-        setPrecio(4800);
-        break;
-      default:
-        setPrecio(0);
-    }
-  }, [vehicle]);
+    const selectedOption = vehicleOptions.find(v => v.name === selectedVehicle);
+    setPrecio(selectedOption?.price || 0);
+  }, [selectedVehicle]);
+
+  const handleSelectVehicle = (vehicleName: string) => {
+    setSelectedVehicle(vehicleName);
+    setShowVehicleModal(false);
+  };
 
   // Mock de choferes disponibles
   const drivers = [
@@ -100,14 +121,69 @@ export default function QuotesScreen() {
     d ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
 
   const handleConfirmQuote = () => {
-    if (!origen || !destino || !fecha || !hora) {
-      Alert.alert("Datos incompletos", "Por favor completa todos los campos antes de continuar.");
+    // Validaciones detalladas
+    if (!origen || origen.trim() === "") {
+      Alert.alert(
+        "Dirección de Origen Requerida",
+        "Por favor ingresa la dirección de donde se recogerán tus pertenencias."
+      );
+      return;
+    }
+    
+    if (!destino || destino.trim() === "") {
+      Alert.alert(
+        "Dirección de Destino Requerida",
+        "Por favor ingresa la dirección a donde se entregarán tus pertenencias."
+      );
+      return;
+    }
+    
+    if (!selectedVehicle) {
+      Alert.alert(
+        "Vehículo no Seleccionado",
+        "Por favor selecciona el tipo de vehículo que necesitas para tu mudanza."
+      );
+      setShowVehicleModal(true);
+      return;
+    }
+    
+    if (!fecha) {
+      Alert.alert(
+        "Fecha Requerida",
+        "Por favor selecciona la fecha en que necesitas la mudanza."
+      );
+      return;
+    }
+    
+    if (!hora) {
+      Alert.alert(
+        "Hora Requerida",
+        "Por favor selecciona la hora aproximada de tu mudanza."
+      );
+      return;
+    }
+    
+    // Validar que la fecha no sea en el pasado
+    const now = new Date();
+    const selectedDateTime = new Date(fecha);
+    selectedDateTime.setHours(hora.getHours(), hora.getMinutes());
+    
+    if (selectedDateTime < now) {
+      Alert.alert(
+        "Fecha Inválida",
+        "No puedes programar una mudanza en el pasado. Por favor selecciona una fecha y hora futuras."
+      );
       return;
     }
     
     // Asignar chofer automáticamente (simulación)
     const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
     setAssignedDriver(randomDriver);
+    
+    Alert.alert(
+      "¡Cotización Procesada!",
+      "Se está buscando el mejor conductor disponible para tu mudanza."
+    );
   };
 
   const handleConfirmDriver = () => {
@@ -128,7 +204,7 @@ export default function QuotesScreen() {
               fecha: fecha?.toISOString(),
               hora: hora?.toISOString(),
               precio: precio.toString(),
-              vehicle: vehicle as string,
+              vehicle: selectedVehicle as string,
             }
           }),
         },
@@ -140,6 +216,7 @@ export default function QuotesScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <ScrollView
         style={styles.container}
+        bounces={false}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -158,37 +235,48 @@ export default function QuotesScreen() {
               </ThemedText>
             </View>
 
-            {/* Tarjeta de vehículo */}
-            <View style={styles.vehicleCard}>
-              <View style={styles.vehicleIconWrapper}>
+            {/* Tarjeta de vehículo - Clickeable para seleccionar */}
+            <TouchableOpacity 
+              style={[styles.vehicleCard, !selectedVehicle && styles.vehicleCardEmpty]}
+              onPress={() => setShowVehicleModal(true)}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.vehicleIconWrapper, !selectedVehicle && { backgroundColor: COLORS.textSecondary }]}>
                 <Ionicons
                   name={
-                    vehicle === "Camioneta"
+                    selectedVehicle === "Camioneta"
                       ? "car"
-                      : vehicle === "Camión"
+                      : selectedVehicle === "Camión"
                         ? "bus"
-                        : "trail-sign"
+                        : selectedVehicle === "Tráiler"
+                        ? "trail-sign"
+                        : "help"
                   }
                   size={36}
                   color={COLORS.white2}
                 />
               </View>
               <View style={{ flex: 1, marginLeft: SPACING.md }}>
-                <ThemedText weight="bold" size={18} color={COLORS.text}>
-                  {vehicle || "Vehículo seleccionado"}
+                <ThemedText weight="bold" size={18} color={selectedVehicle ? COLORS.text : COLORS.textSecondary}>
+                  {selectedVehicle || "Selecciona un vehículo"}
                 </ThemedText>
                 <ThemedText size={13} color={COLORS.textSecondary} style={{ marginTop: 2 }}>
-                  {vehicle === "Camioneta" ? "Ideal para mudanzas pequeñas" : 
-                   vehicle === "Camión" ? "Para mudanzas medianas" : 
-                   "Para mudanzas grandes"}
+                  {selectedVehicle === "Camioneta" ? "Ideal para mudanzas pequeñas" : 
+                   selectedVehicle === "Camión" ? "Para mudanzas medianas" : 
+                   selectedVehicle === "Tráiler" ? "Para mudanzas grandes" :
+                   "Toca para elegir"}
                 </ThemedText>
               </View>
-              <View style={styles.priceBadge}>
-                <ThemedText size={12} color={COLORS.primary} weight="bold">
-                  ${precio}
-                </ThemedText>
-              </View>
-            </View>
+              {selectedVehicle ? (
+                <View style={styles.priceBadge}>
+                  <ThemedText size={12} color={COLORS.primary} weight="bold">
+                    ${precio}
+                  </ThemedText>
+                </View>
+              ) : (
+                <Ionicons name="chevron-forward" size={24} color={COLORS.textSecondary} />
+              )}
+            </TouchableOpacity>
 
             {/* Sección de ruta */}
             <View style={styles.sectionHeader}>
@@ -331,8 +419,8 @@ export default function QuotesScreen() {
                   <TouchableOpacity
                     style={styles.modalButton}
                     onPress={() => {
-                      if (showMap === "origen") setOrigen("Av. Siempre Viva 742");
-                      else setDestino("Calle Reforma 123");
+                      if (showMap === "origen") setOrigen("Av. Cevallos y Montalvo, Ambato");
+                      else setDestino("Calle Rocafuerte, Baños de Agua Santa");
                       setShowMap(null);
                     }}
                   >
@@ -513,6 +601,100 @@ export default function QuotesScreen() {
           </>
         ) : null}
 
+        {/* Modal de selección de vehículo */}
+        <Modal
+          visible={showVehicleModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowVehicleModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.vehicleModalContent}>
+              <View style={styles.vehicleModalHeader}>
+                <ThemedText weight="bold" size={22} color={COLORS.text}>
+                  Selecciona tu vehículo
+                </ThemedText>
+                <TouchableOpacity onPress={() => setShowVehicleModal(false)}>
+                  <Ionicons name="close" size={28} color={COLORS.textSecondary} />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={styles.vehicleModalBody} showsVerticalScrollIndicator={false}>
+                {vehicleOptions.map((vehicle, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.vehicleOption,
+                      selectedVehicle === vehicle.name && styles.vehicleOptionSelected
+                    ]}
+                    onPress={() => handleSelectVehicle(vehicle.name)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[
+                      styles.vehicleOptionIcon,
+                      selectedVehicle === vehicle.name 
+                        ? { backgroundColor: COLORS.primary }
+                        : { backgroundColor: COLORS.primary + '15' }
+                    ]}>
+                      <Ionicons 
+                        name={vehicle.icon as any} 
+                        size={32} 
+                        color={selectedVehicle === vehicle.name ? COLORS.white2 : COLORS.primary} 
+                      />
+                    </View>
+                    <View style={{ flex: 1, marginLeft: SPACING.md }}>
+                      <ThemedText weight="bold" size={18} color={COLORS.text}>
+                        {vehicle.name}
+                      </ThemedText>
+                      <ThemedText size={13} color={COLORS.textSecondary} style={{ marginTop: 2 }}>
+                        {vehicle.description}
+                      </ThemedText>
+                      <View style={styles.capacityBadge}>
+                        <Ionicons name="cube-outline" size={14} color={COLORS.secondary} />
+                        <ThemedText size={12} color={COLORS.secondary} style={{ marginLeft: 4 }}>
+                          {vehicle.capacity}
+                        </ThemedText>
+                      </View>
+                    </View>
+                    <View style={styles.vehicleOptionPrice}>
+                      <ThemedText size={14} color={COLORS.textSecondary}>
+                        Desde
+                      </ThemedText>
+                      <ThemedText weight="bold" size={20} color={COLORS.primary}>
+                        ${vehicle.price}
+                      </ThemedText>
+                    </View>
+                    {selectedVehicle === vehicle.name && (
+                      <View style={styles.selectedCheckmark}>
+                        <Ionicons name="checkmark-circle" size={28} color={COLORS.primary} />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
+              <View style={styles.vehicleModalFooter}>
+                <TouchableOpacity
+                  style={[
+                    styles.confirmVehicleButton,
+                    !selectedVehicle && styles.confirmVehicleButtonDisabled
+                  ]}
+                  onPress={() => setShowVehicleModal(false)}
+                  disabled={!selectedVehicle}
+                >
+                  <ThemedText 
+                    weight="bold" 
+                    size={16} 
+                    style={{ color: selectedVehicle ? COLORS.white2 : COLORS.textSecondary }}
+                  >
+                    {selectedVehicle ? `Confirmar ${selectedVehicle}` : "Selecciona un vehículo"}
+                  </ThemedText>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
         {/* Modal de mapa */}
         <Modal visible={!!showMap} transparent animationType="slide">
           <View style={styles.modalContainer}>
@@ -544,8 +726,8 @@ export default function QuotesScreen() {
                 <TouchableOpacity
                   style={styles.modalButton}
                   onPress={() => {
-                    if (showMap === "origen") setOrigen("Av. 6 de Diciembre N34-123, Quito");
-                    else setDestino("Av. República del Salvador N35-89, Quito");
+                    if (showMap === "origen") setOrigen("Av. Los Guaytambos, Ambato");
+                    else setDestino("Calle García Moreno, Pelileo");
                     setShowMap(null);
                   }}
                 >
@@ -585,9 +767,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.xl,
-    paddingBottom: 120,
+    paddingBottom: SPACING.lg,
   },
 
   /* Header */
@@ -620,6 +803,11 @@ const styles = StyleSheet.create({
     ...SHADOWS.medium,
     borderWidth: 1,
     borderColor: COLORS.primary + '20',
+  },
+  vehicleCardEmpty: {
+    borderWidth: 2,
+    borderColor: COLORS.primary + '30',
+    borderStyle: 'dashed',
   },
   vehicleIconWrapper: {
     width: 64,
@@ -853,5 +1041,85 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: COLORS.border + '30',
     marginVertical: SPACING.sm,
+  },
+  
+  /* Vehicle Selection Modal */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  vehicleModalContent: {
+    backgroundColor: COLORS.white2,
+    borderTopLeftRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xl,
+    maxHeight: '85%',
+  },
+  vehicleModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: SPACING.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border + '30',
+  },
+  vehicleModalBody: {
+    padding: SPACING.lg,
+  },
+  vehicleOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
+    padding: SPACING.lg,
+    borderRadius: RADIUS.lg,
+    marginBottom: SPACING.md,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    position: 'relative',
+  },
+  vehicleOptionSelected: {
+    backgroundColor: COLORS.primary + '10',
+    borderColor: COLORS.primary,
+  },
+  vehicleOptionIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  capacityBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: SPACING.xs,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    backgroundColor: COLORS.secondary + '15',
+    borderRadius: RADIUS.sm,
+    alignSelf: 'flex-start',
+  },
+  vehicleOptionPrice: {
+    alignItems: 'flex-end',
+    marginLeft: SPACING.sm,
+  },
+  selectedCheckmark: {
+    position: 'absolute',
+    top: SPACING.sm,
+    right: SPACING.sm,
+  },
+  vehicleModalFooter: {
+    padding: SPACING.lg,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border + '30',
+  },
+  confirmVehicleButton: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: SPACING.md + 2,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    ...SHADOWS.small,
+  },
+  confirmVehicleButtonDisabled: {
+    backgroundColor: COLORS.lightGray,
   },
 });
