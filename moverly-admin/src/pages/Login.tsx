@@ -22,10 +22,19 @@ const handleSubmit = async (e: React.FormEvent) => {
   setLoading(true);
 
   try {
+    // 🔹 MODO DE DESARROLLO: Credenciales de prueba
+    if (correo === "admin@moverly.com" && contrasena === "admin123") {
+      // Login exitoso en modo desarrollo
+      login("dev-token-123"); // ✅ esto guarda y redirige
+      setLoading(false);
+      return;
+    }
+
+    // 🔹 MODO PRODUCCIÓN: Conexión con backend
     const res = await api.post("/auth/login", { correo, contrasena });
     login(res.data.access_token); // ✅ esto guarda y redirige
   } catch (err) {
-    setError("Credenciales incorrectas o error del servidor.");
+    setError("Credenciales incorrectas. Intenta con: admin@moverly.com / admin123");
   } finally {
     setLoading(false);
   }
@@ -111,6 +120,24 @@ const handleSubmit = async (e: React.FormEvent) => {
             ¿Olvidaste tu contraseña?
           </p>
         </form>
+
+        {/* 🔹 Credenciales de prueba */}
+        <div className="mt-6 bg-blue-900/30 border border-blue-500/30 rounded-xl p-4 text-left">
+          <div className="flex items-start gap-3">
+            <div className="bg-blue-500/20 p-2 rounded-lg">
+              <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-blue-300 font-semibold text-sm mb-2">Credenciales de Prueba</h3>
+              <div className="space-y-1 text-xs text-gray-300">
+                <p><span className="text-blue-400 font-mono">Correo:</span> admin@moverly.com</p>
+                <p><span className="text-blue-400 font-mono">Contraseña:</span> admin123</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
