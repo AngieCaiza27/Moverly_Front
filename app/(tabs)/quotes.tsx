@@ -480,19 +480,47 @@ export default function QuotesScreen() {
               <ThemedText size={22} weight="bold" color={COLORS.text} style={{ textAlign: "center" }}>
                 {assignedDriver.name}
               </ThemedText>
-              <ThemedText size={14} color={COLORS.textSecondary} style={{ textAlign: "center", marginTop: 4 }}>
-                {assignedDriver.trips} viajes completados · {assignedDriver.experience} de experiencia
-              </ThemedText>
+              
+              {/* Stats Badges */}
+              <View style={styles.driverStatsRow}>
+                <View style={styles.statBadge}>
+                  <View style={styles.statIconContainer}>
+                    <Ionicons name="checkmark-done-circle" size={20} color={COLORS.primary} />
+                  </View>
+                  <View style={{ marginLeft: 8 }}>
+                    <ThemedText size={18} weight="bold" color={COLORS.text}>
+                      {assignedDriver.trips}
+                    </ThemedText>
+                    <ThemedText size={11} color={COLORS.textSecondary}>
+                      Viajes
+                    </ThemedText>
+                  </View>
+                </View>
+
+                <View style={styles.statBadge}>
+                  <View style={styles.statIconContainer}>
+                    <Ionicons name="time" size={20} color={COLORS.secondary} />
+                  </View>
+                  <View style={{ marginLeft: 8 }}>
+                    <ThemedText size={18} weight="bold" color={COLORS.text}>
+                      {assignedDriver.experience}
+                    </ThemedText>
+                    <ThemedText size={11} color={COLORS.textSecondary}>
+                      Experiencia
+                    </ThemedText>
+                  </View>
+                </View>
+              </View>
 
               <View style={styles.driverDetailsGrid}>
                 <View style={styles.driverDetailItem}>
                   <View style={[styles.detailIconContainer, { backgroundColor: COLORS.primary + '15' }]}>
                     <Ionicons name="car" size={24} color={COLORS.primary} />
                   </View>
-                  <ThemedText size={12} color={COLORS.textSecondary} style={{ marginTop: 6 }}>
-                    Vehículo
+                  <ThemedText size={11} color={COLORS.textSecondary} style={{ marginTop: 6, textAlign: 'center' }}>
+                    VEHÍCULO
                   </ThemedText>
-                  <ThemedText size={14} weight="bold" color={COLORS.text} style={{ marginTop: 2 }}>
+                  <ThemedText size={13} weight="bold" color={COLORS.text} style={{ marginTop: 2, textAlign: 'center' }}>
                     {assignedDriver.vehicle}
                   </ThemedText>
                 </View>
@@ -501,10 +529,10 @@ export default function QuotesScreen() {
                   <View style={[styles.detailIconContainer, { backgroundColor: COLORS.secondary + '15' }]}>
                     <Ionicons name="card" size={24} color={COLORS.secondary} />
                   </View>
-                  <ThemedText size={12} color={COLORS.textSecondary} style={{ marginTop: 6 }}>
-                    Placa
+                  <ThemedText size={11} color={COLORS.textSecondary} style={{ marginTop: 6, textAlign: 'center' }}>
+                    PLACA
                   </ThemedText>
-                  <ThemedText size={14} weight="bold" color={COLORS.text} style={{ marginTop: 2 }}>
+                  <ThemedText size={13} weight="bold" color={COLORS.text} style={{ marginTop: 2, textAlign: 'center' }}>
                     {assignedDriver.plate}
                   </ThemedText>
                 </View>
@@ -513,10 +541,10 @@ export default function QuotesScreen() {
                   <View style={[styles.detailIconContainer, { backgroundColor: COLORS.accent + '15' }]}>
                     <Ionicons name="call" size={24} color={COLORS.accent} />
                   </View>
-                  <ThemedText size={12} color={COLORS.textSecondary} style={{ marginTop: 6 }}>
-                    Teléfono
+                  <ThemedText size={11} color={COLORS.textSecondary} style={{ marginTop: 6, textAlign: 'center' }}>
+                    TELÉFONO
                   </ThemedText>
-                  <ThemedText size={14} weight="bold" color={COLORS.text} style={{ marginTop: 2 }}>
+                  <ThemedText size={13} weight="bold" color={COLORS.text} style={{ marginTop: 2, textAlign: 'center' }}>
                     {assignedDriver.phone}
                   </ThemedText>
                 </View>
@@ -996,6 +1024,33 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
     ...SHADOWS.medium,
   },
+  driverStatsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: SPACING.md,
+    marginTop: SPACING.lg,
+    marginBottom: SPACING.sm,
+  },
+  statBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.inputBackground,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.md,
+    ...SHADOWS.small,
+    borderWidth: 1,
+    borderColor: COLORS.border + '20',
+  },
+  statIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.white2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.small,
+  },
   driverDetailsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1007,7 +1062,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: COLORS.inputBackground,
     padding: SPACING.md,
+    paddingVertical: SPACING.md + 4,
     borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border + '15',
   },
   detailIconContainer: {
     width: 48,
